@@ -145,7 +145,7 @@
                     </div>
                     
                     <!-- Canvas/Stage for Animation -->
-                    <div id="vizStage" class="w-full h-80 bg-slate-50 overflow-hidden flex items-center justify-center p-6 border-b border-slate-200">
+                    <div id="vizStage" class="w-full h-80 bg-slate-50 overflow-hidden relative flex items-center justify-center p-6 border-b border-slate-200">
                         <!-- Visualization injected by JS -->
                     </div>
 
@@ -689,7 +689,7 @@
                     <button id="btnVmProc" onclick="vizRunVMs()" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded-lg font-bold transition-colors shadow-md"><i class="fa-solid fa-power-off mr-1"></i> ${t.btn_run_vms}</button>
                 `;
                 stage.innerHTML = `
-                    <div class="demo-container w-full h-full relative">
+                    <div class="demo-container w-full h-full">
                         <div class="w-full max-w-xl border-4 border-slate-700 rounded-2xl p-6 bg-slate-100 relative shadow-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                             <div class="absolute -top-4 left-6 bg-slate-700 text-white text-sm px-4 py-1 rounded-full font-bold shadow-md">${t.lbl_hardware}</div>
                             <div class="w-full bg-slate-300 h-8 rounded-lg mb-6 flex items-center justify-center text-sm font-bold text-slate-700 shadow-inner border border-slate-400">${t.lbl_hypervisor}</div>
