@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Software: Processing Modes | 系統軟件：處理模式</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* Animation Utilities */
+        .task-node {
+            transition: all 0.5s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { border-color: #60a5fa; box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        .processing-active {
+            animation: pulse-border 1s infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Demo Specific */
+        .demo-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-slate-200 z-20 flex-shrink-0 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
+                    <i class="fa-solid fa-microchip text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold text-slate-800" data-i18n="app_title">System Software: Processing Modes</h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <span class="text-sm text-slate-500 hidden sm:block font-medium not-italic">Created by Sam Li</span>
+                <button id="langToggle" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-full text-sm font-semibold transition-colors shadow-sm" onclick="toggleLanguage()">
+                    <i class="fa-solid fa-language text-indigo-600 text-lg"></i>
+                    <span id="langLabel">中文</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl mx-auto w-full">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-72 bg-slate-50 border-r border-slate-200 flex-shrink-0 flex flex-col h-full z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+            <div class="p-5 border-b border-slate-200 bg-white">
+                <h2 class="text-sm font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-indigo-500"></i>
+                    <span data-i18n="nav_learning_modes">Learning Modes</span>
+                </h2>
+            </div>
+            <nav class="p-4 space-y-2 flex-1 overflow-y-auto" id="navMenu">
+                <!-- Populated by JS -->
+            </nav>
+            <div class="p-5 border-t border-slate-200 bg-white">
+                <button onclick="startQuiz()" class="w-full bg-indigo-600 text-white hover:bg-indigo-700 font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-clipboard-question text-lg"></i>
+                    <span data-i18n="take_quiz">Take Knowledge Quiz</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <section class="flex-1 bg-white overflow-y-auto p-4 md:p-8 relative" id="contentArea">
+            
+            <div id="learningSection" class="max-w-4xl mx-auto fade-in">
+                <!-- Header Info -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mb-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div id="modeIcon" class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl"></div>
+                        <h2 id="modeTitle" class="text-3xl font-bold text-slate-800">Mode Title</h2>
+                    </div>
+                    <p id="modeDesc" class="text-slate-600 text-lg leading-relaxed mb-6"></p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-blue-50/50 rounded-xl p-5 border border-blue-100 shadow-sm">
+                            <h3 class="font-bold text-blue-800 mb-3 flex items-center gap-2 text-lg">
+                                <i class="fa-solid fa-lightbulb text-blue-500"></i> <span data-i18n="why_use">Characteristics & Applications</span>
+                            </h3>
+                            <div id="modeWhy" class="text-sm text-blue-900 leading-relaxed space-y-2"></div>
+                        </div>
+                        <div class="bg-amber-50/50 rounded-xl p-5 border border-amber-100 shadow-sm">
+                            <h3 class="font-bold text-amber-800 mb-3 flex items-center gap-2 text-lg">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> <span data-i18n="misconception">Key Details for Students</span>
+                            </h3>
+                            <div id="modeMisconception" class="text-sm text-amber-900 leading-relaxed space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization Area -->
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden mb-6">
+                    <div class="bg-slate-800 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-play-circle text-indigo-400"></i> <span data-i18n="interactive_demo">Interactive Demo</span>
+                        </h3>
+                        <div id="controlsArea" class="flex flex-wrap justify-center gap-3">
+                            <!-- Controls injected by JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Canvas/Stage for Animation -->
+                    <div id="vizStage" class="w-full h-80 bg-slate-50 overflow-hidden flex items-center justify-center p-6 border-b border-slate-200">
+                        <!-- Visualization injected by JS -->
+                    </div>
+
+                    <!-- Step-by-step Explanation Box -->
+                    <div class="p-6 bg-indigo-50/50">
+                        <h4 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info"></i> <span data-i18n="demo_explanation_title">What is happening?</span>
+                        </h4>
+                        <p id="demoExplanation" class="text-slate-700 font-medium min-h-[3rem] transition-all text-lg leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Section (Hidden by default) -->
+            <div id="quizSection" class="max-w-3xl mx-auto hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8">
+                    <div class="flex justify-between items-center mb-8 pb-4 border-b border-slate-100">
+                        <h2 class="text-2xl font-bold text-indigo-900 flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-check text-indigo-500"></i>
+                            <span data-i18n="quiz_title">Knowledge Check</span>
+                        </h2>
+                        <div class="flex items-center gap-4">
+                            <span id="quizProgress" class="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">Question 1 of 3</span>
+                            <button onclick="exitQuiz()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-colors" title="Exit Quiz">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="quizContent" class="min-h-[300px]">
+                        <!-- Quiz injected by JS -->
+                    </div>
+                    
+                    <!-- Quiz Navigation Controls -->
+                    <div id="quizNavControls" class="flex justify-between items-center mt-8 pt-6 border-t border-slate-100 hidden">
+                        <button id="btnQuizPrev" onclick="navigateQuiz(-1)" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-left"></i> <span data-i18n="quiz_prev">Previous</span>
+                        </button>
+                        <button id="btnQuizNext" onclick="navigateQuiz(1)" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md">
+                            <span data-i18n="quiz_next">Next</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // --- Data & Content (Bilingual) ---
+        const i18n = {
+            en: {
+                app_title: "System Software: Processing Modes",
+                nav_learning_modes: "Learning Modes",
+                take_quiz: "Take Knowledge Quiz",
+                why_use: "Characteristics & Applications",
+                misconception: "Key Details for Students",
+                interactive_demo: "Interactive Demo",
+                demo_explanation_title: "What is happening in the demo?",
+                quiz_title: "Knowledge Check",
+                
+                // Demo Buttons
+                btn_add_task: "Add Task to Queue",
+                btn_process: "Start Processing",
+                btn_trigger: "Trigger Event",
+                btn_distribute: "Distribute Tasks",
+                btn_run_vms: "Boot Virtual Machines",
+                btn_reset: "Reset Demo",
+                
+                // Demo Labels
+                lbl_queue: "DATA QUEUE",
+                lbl_system: "PROCESSING SYSTEM",
+                lbl_huge_task: "Massive Computation Task",
+                lbl_core: "Core",
+                lbl_main_server: "Main Server",
+                lbl_hardware: "Physical Hardware",
+                lbl_hypervisor: "Hypervisor (VM Manager)",
+                
+                // Demo Explanations
+                exp_batch_init: "Click 'Add Task' to simulate collecting data over time. The system waits until a batch is formed. Notice that 'Start Processing' is disabled until there is data.",
+                exp_batch_add: "Data added to the queue. It is stored but not processed yet. The system is waiting for the scheduled processing time or until the batch is full.",
+                exp_batch_proc: "Processing the entire batch at once without stopping. Notice how it handles everything sequentially and efficiently without needing human input. Once started, it doesn't stop until the queue is empty.",
+                exp_rt_init: "Click 'Trigger Event' to simulate an immediate real-world input (like an online booking request or a sensor reading).",
+                exp_rt_proc: "The input is sent instantly to the system, processed immediately, and output is generated without delay. Strict timing and interactive feedback are guaranteed.",
+                exp_par_init: "Click 'Start Processing' to see how a single computer handles a massive task.",
+                exp_par_proc: "The massive task is divided into smaller chunks. Multiple CPU cores inside the SAME computer process these chunks simultaneously, drastically saving total computation time.",
+                exp_dist_init: "Click 'Distribute Tasks' to see how a network of computers collaborates.",
+                exp_dist_proc: "The main server sends pieces of the problem over the network to separate, independent computers. They process the data locally and return the results to the main server.",
+                exp_vm_init: "Click 'Boot Virtual Machines' to see how one physical server acts as many.",
+                exp_vm_proc: "The Hypervisor allocates physical resources (CPU, RAM) to create isolated, independent virtual environments. Each VM runs its own OS simultaneously on the same hardware.",
+
+                // Quiz UI
+                quiz_prev: "Previous",
+                quiz_next: "Next Question",
+                quiz_finish: "See Results",
+                quiz_score: "Your Final Score:",
+                quiz_retry: "Retry Quiz",
+                quiz_back: "Back to Learning",
+                quiz_correct: "Correct!",
+                quiz_incorrect: "Incorrect.",
+                quiz_perfect_msg: "Excellent job! You mastered the processing modes.",
+                quiz_good_msg: "Good effort! Review the modes and try again.",
+                
+                modes: [
+                    {
+                        id: 'batch',
+                        icon: 'fa-layer-group',
+                        title: 'Batch Processing System',
+                        desc: 'Data is collected over a period of time and processed together as a "batch" without human intervention. It is typically scheduled during off-peak hours to maximize system resources.',
+                        why: '<b>Characteristics:</b> High efficiency for large volumes of repetitive tasks. No user interaction required during processing.<br><b>Applications:</b> Payroll systems, utility billing (water/electricity bills), exam result processing.',
+                        misconception: '<b>Student Note:</b> Batch processing does NOT mean "slow". It means "delayed execution". The processing itself is extremely fast because it doesn\'t wait for human input. It is heavily used today for training complex AI models.',
+                        vizType: 'batch'
+                    },
+                    {
+                        id: 'realtime',
+                        icon: 'fa-bolt',
+                        title: 'Real-time System',
+                        desc: 'Data is processed immediately upon input, providing instant output. It is critical for systems where delays are unacceptable, allowing users to interact directly with the system.',
+                        why: '<b>Characteristics:</b> Immediate response, continuous availability, handles inputs as they occur.<br><b>Applications:</b> ATM networks, airline ticket booking, online gaming, anti-lock braking systems (ABS).',
+                        misconception: '<b>Student Note:</b> "Real-time" means "guaranteed response within a strict time limit" (determinism). If an ATM takes 5 seconds, it is still an interactive system, but if a car\'s airbag takes 5 seconds, the real-time system has failed.',
+                        vizType: 'realtime'
+                    },
+                    {
+                        id: 'parallel',
+                        icon: 'fa-microchip',
+                        title: 'Parallel Processing System',
+                        desc: 'A single complex task is broken down into smaller parts, which are processed simultaneously by multiple processors (cores) within the SAME computer system.',
+                        why: '<b>Characteristics:</b> Tightly coupled processors sharing memory. Massively reduces computation time for a single complex problem.<br><b>Applications:</b> Weather forecasting, 3D video rendering, complex scientific simulations.',
+                        misconception: '<b>Student Note:</b> Not all tasks can be parallelized. If step B depends on the result of step A, they must be done sequentially. Software must be specifically written to take advantage of multiple cores.',
+                        vizType: 'parallel'
+                    },
+                    {
+                        id: 'distributed',
+                        icon: 'fa-network-wired',
+                        title: 'Distributed Processing System',
+                        desc: 'Multiple independent computers connected via a network (like the Internet or a LAN) work together to solve a single massive problem or provide a unified service.',
+                        why: '<b>Characteristics:</b> Loosely coupled. High fault tolerance (if one computer fails, others continue). Highly scalable.<br><b>Applications:</b> Blockchain, cloud storage (Google Drive), SETI@home, large-scale web search engines.',
+                        misconception: '<b>Student Note:</b> Do not confuse Parallel and Distributed! Distributed uses entirely separate computers over a network; parallel uses multiple CPUs in one single machine.',
+                        vizType: 'distributed'
+                    },
+                    {
+                        id: 'virtualisation',
+                        icon: 'fa-cubes',
+                        title: 'Virtualization',
+                        desc: 'Creating a virtual (software-based) version of physical resources, such as an operating system, server, storage device, or network resources, using a Hypervisor.',
+                        why: '<b>Characteristics:</b> Resource isolation, hardware independence, cost-efficiency.<br><b>Applications:</b> Cloud computing (AWS, Azure), running Windows on a Mac, testing software in safe "sandbox" environments.',
+                        misconception: '<b>Student Note:</b> A virtual machine acts exactly like a real physical computer to the software running inside it. If a virus attacks a VM, it generally cannot escape to harm the physical host machine.',
+                        vizType: 'virtualisation'
+                    }
+                ],
+                quiz: [
+                    { 
+                        q: "Which processing mode is best for generating monthly water bills for an entire city?", 
+                        options: ["Real-time System", "Batch Processing System", "Parallel Processing System", "Distributed Processing System"], 
+                        answer: 1,
+                        explanation: "Batch processing is ideal here because bills do not need to be generated instantly. The meter data can be collected over the month and processed all at once efficiently without human intervention."
+                    },
+                    { 
+                        q: "Booking a seat for a concert online requires which type of system to prevent double-booking?", 
+                        options: ["Batch Processing System", "Virtualization", "Real-time System", "Distributed Processing System"], 
+                        answer: 2,
+                        explanation: "Real-time systems process the transaction immediately. This ensures that once you select a seat, it is instantly locked so no one else can book it at the same time."
+                    },
+                    { 
+                        q: "Running multiple isolated operating systems (like Linux and Windows) on a single physical school server is an example of:", 
+                        options: ["Virtualization", "Parallel Processing System", "Batch Processing System", "Real-time System"], 
+                        answer: 0,
+                        explanation: "Virtualization uses a hypervisor to split physical hardware resources, allowing multiple different operating systems to run independently on the same physical machine."
+                    },
+                    {
+                        q: "A research lab connects 500 standard desktop computers across different universities via the internet to analyze astronomical data together. This is:",
+                        options: ["Parallel Processing System", "Real-time System", "Distributed Processing System", "Batch Processing System"],
+                        answer: 2,
+                        explanation: "Because it uses multiple independent computers connected over a network to solve a massive problem, it is a Distributed Processing System."
+                    }
+                ]
+            },
+            zh: {
+                app_title: "系統軟件：處理模式",
+                nav_learning_modes: "學習模式",
+                take_quiz: "進行知識測驗",
+                why_use: "特性及應用",
+                misconception: "學生注意事項",
+                interactive_demo: "互動演示",
+                demo_explanation_title: "演示中發生了什麼事？",
+                quiz_title: "知識測試",
+                
+                // Demo Buttons
+                btn_add_task: "加入任務到佇列",
+                btn_process: "開始處理",
+                btn_trigger: "觸發事件",
+                btn_distribute: "分配任務",
+                btn_run_vms: "啟動虛擬機",
+                btn_reset: "重置演示",
+                
+                // Demo Labels
+                lbl_queue: "數據佇列 (QUEUE)",
+                lbl_system: "處理系統",
+                lbl_huge_task: "龐大的計算任務",
+                lbl_core: "核心",
+                lbl_main_server: "主伺服器",
+                lbl_hardware: "實體硬體 (Hardware)",
+                lbl_hypervisor: "虛擬機器監視器 (Hypervisor)",
+                
+                // Demo Explanations
+                exp_batch_init: "點擊「加入任務」來模擬隨時間收集數據。系統會等待直到形成一個批次。請注意，在有數據之前，「開始處理」按鈕是禁用的。",
+                exp_batch_add: "數據已加入佇列。它被儲存起來，但尚未處理。系統正在等待預定的處理時間或直到批次已滿。",
+                exp_batch_proc: "一次性處理整個批次而不中斷。請注意它是如何循序漸進且高效地處理所有內容的，無需人為干預。一旦開始，直到佇列清空才會停止。",
+                exp_rt_init: "點擊「觸發事件」來模擬立即的現實世界輸入（如網上預訂請求或感測器讀數）。",
+                exp_rt_proc: "輸入立即發送到系統，立即處理，並毫不延遲地產生輸出。保證了嚴格的時間性和互動反饋。",
+                exp_par_init: "點擊「開始處理」看看單台電腦如何處理龐大的任務。",
+                exp_par_proc: "龐大的任務被分成較小的區塊。同一台電腦內的多個 CPU 核心同時處理這些區塊，大幅節省了總計算時間。",
+                exp_dist_init: "點擊「分配任務」看看電腦網絡如何協作。",
+                exp_dist_proc: "主伺服器透過網絡將問題的各個部分發送給獨立的電腦。它們在本地處理數據並將結果返回給主伺服器。",
+                exp_vm_init: "點擊「啟動虛擬機」看看一台實體伺服器如何充當多台伺服器。",
+                exp_vm_proc: "Hypervisor 分配實體資源（CPU、RAM）以創建隔離的虛擬環境。每個虛擬機在同一硬體上同時運行自己的作業系統。",
+
+                // Quiz UI
+                quiz_prev: "上一題",
+                quiz_next: "下一題",
+                quiz_finish: "查看結果",
+                quiz_score: "你的最終分數：",
+                quiz_retry: "重試測驗",
+                quiz_back: "返回學習",
+                quiz_correct: "答對了！",
+                quiz_incorrect: "答錯了。",
+                quiz_perfect_msg: "做得好！你已經完全掌握了這些處理模式。",
+                quiz_good_msg: "再接再厲！仔細複習一下各個模式然後再試一次。",
+                
+                modes: [
+                    {
+                        id: 'batch',
+                        icon: 'fa-layer-group',
+                        title: '批工件處理系統',
+                        desc: '在一段時間內收集數據，然後在沒有人為干預的情況下作為一個「批次」一起處理。通常安排在非繁忙時段進行，以最大化系統資源。',
+                        why: '<b>特性：</b>對於大量重複性任務非常高效。處理期間不需要用戶互動。<br><b>應用：</b>薪資計算系統、公用事業帳單（水費/電費單）、考試成績處理。',
+                        misconception: '<b>學生注意事項：</b>批工件處理並不意味著「慢」。它意味著「延遲執行」。處理本身非常快，因為它不需要等待人為輸入。現今仍大量應用於訓練複雜的 AI 模型。',
+                        vizType: 'batch'
+                    },
+                    {
+                        id: 'realtime',
+                        icon: 'fa-bolt',
+                        title: '實時系統',
+                        desc: '輸入數據後立即處理並提供即時輸出。對於不能容忍延遲的系統至關重要，允許用戶直接與系統互動。',
+                        why: '<b>特性：</b>即時回應，持續可用，在輸入發生時立即處理。<br><b>應用：</b>自動櫃員機 (ATM) 網絡、機票預訂、網上遊戲、防鎖死煞車系統 (ABS)。',
+                        misconception: '<b>學生注意事項：</b>「實時」意味著「在嚴格的時間限制內保證回應」（確定性）。如果 ATM 需要 5 秒，它仍然是一個互動系統；但如果汽車的安全氣囊需要 5 秒，該實時系統就徹底失敗了。',
+                        vizType: 'realtime'
+                    },
+                    {
+                        id: 'parallel',
+                        icon: 'fa-microchip',
+                        title: '並行式處理系統',
+                        desc: '將單個複雜任務分解為較小的部分，由同一台計算機系統內的多個處理器（核心）同時處理。',
+                        why: '<b>特性：</b>緊密耦合的處理器共享記憶體。大幅減少單個複雜問題的計算時間。<br><b>應用：</b>天氣預報、3D 影片渲染、複雜的科學模擬。',
+                        misconception: '<b>學生注意事項：</b>並非所有任務都可以並行化。如果步驟 B 依賴於步驟 A 的結果，它們必須按順序完成。軟件必須專門編寫以利用多個核心。',
+                        vizType: 'parallel'
+                    },
+                    {
+                        id: 'distributed',
+                        icon: 'fa-network-wired',
+                        title: '分布式處理系統',
+                        desc: '通過網絡（如互聯網或區域網）連接的多台獨立計算機協同工作，以解決單個龐大的問題或提供統一的服務。',
+                        why: '<b>特性：</b>鬆散耦合。高容錯性（如果一台電腦發生故障，其他電腦會繼續工作）。高度可擴展。<br><b>應用：</b>區塊鏈、雲端儲存 (Google Drive)、SETI@home、大型網絡搜索引擎。',
+                        misconception: '<b>學生注意事項：</b>不要混淆並行式和分布式！分布式使用網絡上完全獨立的計算機；並行式處理使用同一台機器內的多個 CPU。',
+                        vizType: 'distributed'
+                    },
+                    {
+                        id: 'virtualisation',
+                        icon: 'fa-cubes',
+                        title: '虛擬化',
+                        desc: '使用 Hypervisor 創建物理資源（如操作系統、伺服器、存儲設備或網絡資源）的虛擬（基於軟件）版本。',
+                        why: '<b>特性：</b>資源隔離、硬件獨立性、成本效益高。<br><b>應用：</b>雲端計算 (AWS, Azure)、在 Mac 上運行 Windows、在安全的「沙盒」環境中測試軟件。',
+                        misconception: '<b>學生注意事項：</b>虛擬機對於在其中運行的軟件來說，行為與真實的物理計算機完全相同。如果病毒攻擊了虛擬機，它通常無法逃逸出來損害物理主機。',
+                        vizType: 'virtualisation'
+                    }
+                ],
+                quiz: [
+                    { 
+                        q: "哪種處理模式最適合為整個城市生成每月的水費單？", 
+                        options: ["實時系統", "批工件處理系統", "並行式處理系統", "分布式處理系統"], 
+                        answer: 1,
+                        explanation: "批工件處理系統在這裡是最理想的，因為帳單不需要立即生成。水錶數據可以在整個月內收集，然後在沒有人為干預的情況下一次性高效處理。"
+                    },
+                    { 
+                        q: "在網上預訂演唱會座位需要哪種類型的系統來防止重複預訂？", 
+                        options: ["批工件處理系統", "虛擬化", "實時系統", "分布式處理系統"], 
+                        answer: 2,
+                        explanation: "實時系統會立即處理交易。這確保了一旦你選擇了座位，它就會立即被鎖定，其他人無法同時預訂。"
+                    },
+                    { 
+                        q: "在一台實體學校伺服器上同時獨立運行多個作業系統（如 Linux 和 Windows）是什麼的例子？", 
+                        options: ["虛擬化", "並行式處理系統", "批工件處理系統", "實時系統"], 
+                        answer: 0,
+                        explanation: "虛擬化使用 Hypervisor 來分割實體硬體資源，允許多個不同的作業系統在同一台實體機器上獨立運行。"
+                    },
+                    {
+                        q: "一個研究實驗室通過互聯網連接了不同大學的 500 台標準桌上型電腦，共同分析天文數據。這是：",
+                        options: ["並行式處理系統", "實時系統", "分布式處理系統", "批工件處理系統"],
+                        answer: 2,
+                        explanation: "因為它使用通過網絡連接的多台獨立計算機來解決一個龐大的問題，所以這是分布式處理系統。"
+                    }
+                ]
+            }
+        };
+
+        // --- State Management ---
+        let currentLang = 'zh'; // Default to zh as requested
+        let currentModeIndex = 0;
+        let isAnimating = false;
+        
+        // Quiz State
+        let quizState = { 
+            active: false, 
+            currentQ: 0, 
+            answers: []
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNav();
+            loadMode(0);
+            updateStaticText();
+        });
+
+        // --- Language Toggle ---
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            document.getElementById('langLabel').innerText = currentLang === 'en' ? '中文' : 'English';
+            updateStaticText();
+            renderNav();
+            
+            if (quizState.active) {
+                renderQuizQuestion();
+            } else {
+                loadMode(currentModeIndex);
+            }
+        }
+
+        function updateStaticText() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[currentLang][key]) {
+                    if (el.tagName === 'SPAN' || el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4') {
+                        el.innerText = i18n[currentLang][key];
+                    }
+                }
+            });
+        }
+
+        function setDemoExplanation(key) {
+            const text = i18n[currentLang][key];
+            const el = document.getElementById('demoExplanation');
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.innerText = text;
+                el.style.opacity = 1;
+            }, 200);
+        }
+
+        // --- Navigation ---
+        function renderNav() {
+            const nav = document.getElementById('navMenu');
+            nav.innerHTML = '';
+            i18n[currentLang].modes.forEach((mode, index) => {
+                const btn = document.createElement('button');
+                const isActive = index === currentModeIndex && !quizState.active;
+                
+                btn.className = `w-full text-left px-4 py-3 rounded-xl transition-all flex items-center gap-3 mb-2 ${
+                    isActive 
+                    ? 'bg-indigo-600 text-white shadow-md font-bold' 
+                    : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 font-medium'
+                }`;
+                btn.innerHTML = `<i class="fa-solid ${mode.icon} w-6 text-center text-lg"></i> <span>${mode.title}</span>`;
+                btn.onclick = () => {
+                    if(isAnimating) return;
+                    if(quizState.active) exitQuiz();
+                    loadMode(index);
+                };
+                nav.appendChild(btn);
+            });
+        }
+
+        // --- Content Loading ---
+        function loadMode(index) {
+            currentModeIndex = index;
+            const mode = i18n[currentLang].modes[index];
+            
+            document.getElementById('modeTitle').innerText = mode.title;
+            document.getElementById('modeDesc').innerText = mode.desc;
+            document.getElementById('modeWhy').innerHTML = mode.why;
+            document.getElementById('modeMisconception').innerHTML = mode.misconception;
+            
+            const iconContainer = document.getElementById('modeIcon');
+            iconContainer.innerHTML = `<i class="fa-solid ${mode.icon}"></i>`;
+            
+            renderNav();
+            setupVisualization(mode.vizType);
+        }
+
+        function showResetButton(type) {
+            const controls = document.getElementById('controlsArea');
+            const t = i18n[currentLang];
+            const resetBtnId = 'btnResetDemo';
+            if (!document.getElementById(resetBtnId)) {
+                const btn = document.createElement('button');
+                btn.id = resetBtnId;
+                btn.className = "px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white text-sm rounded-lg font-bold transition-colors shadow-sm fade-in";
+                btn.innerHTML = `<i class="fa-solid fa-rotate-right mr-1"></i> ${t.btn_reset}`;
+                btn.onclick = () => setupVisualization(type);
+                controls.appendChild(btn);
+            }
+        }
+
+        function updateButtonStates() {
+            const t = i18n[currentLang];
+            const mode = i18n[currentLang].modes[currentModeIndex].vizType;
+            
+            if (mode === 'batch') {
+                const btnAdd = document.getElementById('btnBatchAdd');
+                const btnProc = document.getElementById('btnBatchProc');
+                if(btnAdd) btnAdd.disabled = isAnimating || batchTasks >= 6;
+                if(btnProc) btnProc.disabled = isAnimating || batchTasks === 0;
+            } else if (mode === 'realtime') {
+                const btn = document.getElementById('btnRtTrigger');
+                if(btn) btn.disabled = isAnimating;
+            } else if (mode === 'parallel') {
+                const btn = document.getElementById('btnParProc');
+                if(btn) btn.disabled = isAnimating;
+            } else if (mode === 'distributed') {
+                const btn = document.getElementById('btnDistProc');
+                if(btn) btn.disabled = isAnimating;
+            } else if (mode === 'virtualisation') {
+                const btn = document.getElementById('btnVmProc');
+                if(btn) btn.disabled = isAnimating;
+            }
+        }
+
+        // --- Helper for accurate relative positioning ---
+        function getRelativeCenter(element, container) {
+            const elRect = element.getBoundingClientRect();
+            const contRect = container.getBoundingClientRect();
+            return {
+                x: (elRect.left - contRect.left) + (elRect.width / 2),
+                y: (elRect.top - contRect.top) + (elRect.height / 2)
+            };
+        }
+
+        // --- Visualizations ---
+        function setupVisualization(type) {
+            const stage = document.getElementById('vizStage');
+            const controls = document.getElementById('controlsArea');
+            stage.innerHTML = '';
+            controls.innerHTML = '';
+            isAnimating = false;
+
+            const t = i18n[currentLang];
+
+            if (type === 'batch') {
+                batchTasks = 0;
+                setDemoExplanation('exp_batch_init');
+                controls.innerHTML = `
+                    <button id="btnBatchAdd" onclick="vizBatchAdd()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm rounded-lg font-bold transition-colors shadow-sm"><i class="fa-solid fa-plus mr-1"></i> ${t.btn_add_task}</button>
+                    <button id="btnBatchProc" onclick="vizBatchProcess()" disabled class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg font-bold transition-colors shadow-sm"><i class="fa-solid fa-play mr-1"></i> ${t.btn_process}</button>
+                `;
+                stage.innerHTML = `
+                    <div class="demo-container w-full h-full relative" id="batchContainer">
+                        <div class="flex w-full max-w-2xl items-center justify-between gap-6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div class="flex-1 border-2 border-slate-300 rounded-xl p-3 h-40 flex flex-col-reverse gap-1.5 items-center bg-white overflow-hidden relative shadow-inner" id="batchQueue">
+                                <span class="absolute top-2 text-xs text-slate-400 font-bold tracking-widest">${t.lbl_queue}</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-2">
+                                <i class="fa-solid fa-arrow-right text-3xl text-slate-300"></i>
+                            </div>
+                            <div class="w-40 h-40 border-4 border-indigo-200 rounded-full flex flex-col items-center justify-center bg-white relative shadow-lg transition-all" id="batchProcessor">
+                                <i class="fa-solid fa-microchip text-4xl text-indigo-500 mb-2"></i>
+                                <span class="text-xs font-bold text-indigo-800 uppercase text-center px-2">${t.lbl_system}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'realtime') {
+                setDemoExplanation('exp_rt_init');
+                controls.innerHTML = `
+                    <button id="btnRtTrigger" onclick="vizRealtimeTrigger()" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm rounded-lg font-bold transition-colors shadow-md"><i class="fa-solid fa-bolt mr-1"></i> ${t.btn_trigger}</button>
+                `;
+                stage.innerHTML = `
+                    <div class="demo-container w-full h-full relative" id="rtContainer">
+                        <div class="flex w-full max-w-2xl items-center justify-between gap-8 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div id="rtInput" class="w-20 h-20 rounded-full bg-slate-200 flex flex-col items-center justify-center relative shadow-md z-10">
+                                <i class="fa-solid fa-satellite-dish text-2xl text-slate-600"></i>
+                                <span class="text-[10px] font-bold mt-1 text-slate-500">INPUT</span>
+                            </div>
+                            <div id="rtProcessor" class="flex-1 h-32 border-2 border-amber-300 bg-amber-50 rounded-xl flex items-center justify-center transition-all shadow-sm z-10">
+                                <span class="font-bold text-amber-700 tracking-widest text-lg text-center px-2">${t.lbl_system}</span>
+                            </div>
+                            <div id="rtOutput" class="w-20 h-20 rounded-full bg-slate-200 flex flex-col items-center justify-center relative shadow-md z-10 transition-colors">
+                                <i class="fa-solid fa-desktop text-2xl text-slate-600"></i>
+                                <span class="text-[10px] font-bold mt-1 text-slate-500">OUTPUT</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'parallel') {
+                setDemoExplanation('exp_par_init');
+                controls.innerHTML = `
+                    <button id="btnParProc" onclick="vizParallelProcess()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg font-bold transition-colors shadow-md"><i class="fa-solid fa-play mr-1"></i> ${t.btn_process}</button>
+                `;
+                stage.innerHTML = `
+                    <div class="demo-container flex-col gap-8 w-full h-full relative" id="parContainer">
+                        <div class="flex flex-col items-center gap-8 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full">
+                            <div id="parTask" class="w-64 h-16 bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold shadow-lg text-lg z-10 transition-opacity duration-300 text-center px-2">${t.lbl_huge_task}</div>
+                            <div class="flex gap-6 w-full justify-center" id="parCores">
+                                <div class="w-24 h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-2xl text-emerald-600 mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 1</span></div>
+                                <div class="w-24 h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-2xl text-emerald-600 mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 2</span></div>
+                                <div class="w-24 h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-2xl text-emerald-600 mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 3</span></div>
+                                <div class="w-24 h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-2xl text-emerald-600 mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 4</span></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'distributed') {
+                setDemoExplanation('exp_dist_init');
+                controls.innerHTML = `
+                    <button id="btnDistProc" onclick="vizDistribute()" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg font-bold transition-colors shadow-md"><i class="fa-solid fa-network-wired mr-1"></i> ${t.btn_distribute}</button>
+                `;
+                stage.innerHTML = `
+                    <div class="demo-container w-full h-full relative" id="distContainer">
+                        <div id="distServer" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-slate-800 rounded-2xl flex flex-col items-center justify-center text-white z-10 shadow-xl">
+                            <i class="fa-solid fa-server text-4xl mb-2"></i>
+                            <span class="text-xs font-bold text-center px-2">${t.lbl_main_server}</span>
+                        </div>
+                        <!-- Nodes -->
+                        <div class="absolute top-[10%] left-[15%] w-20 h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-laptop text-2xl text-purple-600"></i></div>
+                        <div class="absolute bottom-[10%] left-[20%] w-20 h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-desktop text-2xl text-purple-600"></i></div>
+                        <div class="absolute top-[15%] right-[15%] w-20 h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-server text-2xl text-purple-600"></i></div>
+                        <div class="absolute bottom-[15%] right-[20%] w-20 h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-laptop text-2xl text-purple-600"></i></div>
+                    </div>
+                `;
+            } else if (type === 'virtualisation') {
+                setDemoExplanation('exp_vm_init');
+                controls.innerHTML = `
+                    <button id="btnVmProc" onclick="vizRunVMs()" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-sm rounded-lg font-bold transition-colors shadow-md"><i class="fa-solid fa-power-off mr-1"></i> ${t.btn_run_vms}</button>
+                `;
+                stage.innerHTML = `
+                    <div class="demo-container w-full h-full relative">
+                        <div class="w-full max-w-xl border-4 border-slate-700 rounded-2xl p-6 bg-slate-100 relative shadow-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div class="absolute -top-4 left-6 bg-slate-700 text-white text-sm px-4 py-1 rounded-full font-bold shadow-md">${t.lbl_hardware}</div>
+                            <div class="w-full bg-slate-300 h-8 rounded-lg mb-6 flex items-center justify-center text-sm font-bold text-slate-700 shadow-inner border border-slate-400">${t.lbl_hypervisor}</div>
+                            <div class="flex gap-4 justify-between" id="vmContainer">
+                                <div class="flex-1 bg-white border-2 border-cyan-400 rounded-xl p-4 flex flex-col items-center shadow-sm">
+                                    <i class="fa-brands fa-windows text-cyan-600 text-3xl mb-3"></i>
+                                    <span class="text-sm font-bold text-slate-700">Windows VM</span>
+                                    <div class="w-full h-3 bg-slate-100 mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-cyan-500 w-0 vm-progress"></div></div>
+                                </div>
+                                <div class="flex-1 bg-white border-2 border-orange-400 rounded-xl p-4 flex flex-col items-center shadow-sm">
+                                    <i class="fa-brands fa-ubuntu text-orange-600 text-3xl mb-3"></i>
+                                    <span class="text-sm font-bold text-slate-700">Linux VM</span>
+                                    <div class="w-full h-3 bg-slate-100 mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-orange-500 w-0 vm-progress"></div></div>
+                                </div>
+                                <div class="flex-1 bg-white border-2 border-slate-400 rounded-xl p-4 flex flex-col items-center shadow-sm">
+                                    <i class="fa-brands fa-apple text-slate-600 text-3xl mb-3"></i>
+                                    <span class="text-sm font-bold text-slate-700">macOS VM</span>
+                                    <div class="w-full h-3 bg-slate-100 mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-slate-500 w-0 vm-progress"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            updateButtonStates();
+        }
+
+        // --- Animation Logic ---
+
+        // Batch
+        let batchTasks = 0;
+        function vizBatchAdd() {
+            if(isAnimating || batchTasks >= 6) return;
+            const q = document.getElementById('batchQueue');
+            const task = document.createElement('div');
+            task.className = 'w-full h-6 bg-indigo-500 rounded-md fade-in shadow-sm border border-indigo-600';
+            q.appendChild(task);
+            batchTasks++;
+            setDemoExplanation('exp_batch_add');
+            updateButtonStates();
+        }
+        
+        function vizBatchProcess() {
+            if(batchTasks === 0 || isAnimating) return;
+            isAnimating = true;
+            updateButtonStates();
+            setDemoExplanation('exp_batch_proc');
+            
+            const q = document.getElementById('batchQueue');
+            const proc = document.getElementById('batchProcessor');
+            
+            proc.classList.add('processing-active');
+            
+            let processed = 0;
+            const total = batchTasks;
+            
+            const interval = setInterval(() => {
+                const tasks = q.querySelectorAll('div');
+                if(tasks.length > 0) {
+                    q.removeChild(tasks[0]);
+                    proc.style.backgroundColor = '#e0e7ff';
+                    setTimeout(() => proc.style.backgroundColor = 'white', 200);
+                    processed++;
+                }
+                if(processed >= total) {
+                    clearInterval(interval);
+                    batchTasks = 0;
+                    proc.classList.remove('processing-active');
+                    isAnimating = false;
+                    updateButtonStates();
+                    showResetButton('batch');
+                }
+            }, 600);
+        }
+
+        // Real-time
+        function vizRealtimeTrigger() {
+            if(isAnimating) return;
+            isAnimating = true;
+            updateButtonStates();
+            setDemoExplanation('exp_rt_proc');
+            
+            const container = document.getElementById('rtContainer');
+            const input = document.getElementById('rtInput');
+            const proc = document.getElementById('rtProcessor');
+            const output = document.getElementById('rtOutput');
+            
+            const blip = document.createElement('div');
+            blip.className = 'absolute w-6 h-6 bg-amber-500 rounded-full z-20 shadow-lg';
+            
+            const startPos = getRelativeCenter(input, container);
+            const midPos = getRelativeCenter(proc, container);
+            const endPos = getRelativeCenter(output, container);
+
+            blip.style.left = (startPos.x - 12) + 'px';
+            blip.style.top = (startPos.y - 12) + 'px';
+            blip.style.transition = 'all 0.15s linear';
+            container.appendChild(blip);
+            
+            setTimeout(() => {
+                blip.style.left = (midPos.x - 12) + 'px';
+                blip.style.top = (midPos.y - 12) + 'px';
+                proc.classList.add('bg-amber-200', 'border-amber-500');
+                
+                setTimeout(() => {
+                    blip.style.left = (endPos.x - 12) + 'px';
+                    blip.style.top = (endPos.y - 12) + 'px';
+                    proc.classList.remove('bg-amber-200', 'border-amber-500');
+                    
+                    setTimeout(() => {
+                        output.classList.add('bg-green-200', 'text-green-700');
+                        blip.remove();
+                        setTimeout(() => {
+                            output.classList.remove('bg-green-200', 'text-green-700');
+                            isAnimating = false;
+                            updateButtonStates();
+                            showResetButton('realtime');
+                        }, 400);
+                    }, 150);
+                }, 200);
+            }, 50);
+        }
+
+        // Parallel
+        function vizParallelProcess() {
+            if(isAnimating) return;
+            isAnimating = true;
+            updateButtonStates();
+            setDemoExplanation('exp_par_proc');
+            
+            const container = document.getElementById('parContainer');
+            const task = document.getElementById('parTask');
+            const cores = document.getElementById('parCores').children;
+            
+            task.style.opacity = '0';
+            
+            const minis = [];
+            const startPos = getRelativeCenter(task, container);
+
+            for(let i=0; i<4; i++) {
+                const m = document.createElement('div');
+                m.className = 'absolute w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center text-white text-sm font-bold z-20 shadow-md';
+                m.innerText = `Part ${i+1}`;
+                m.style.left = (startPos.x - 24) + 'px';
+                m.style.top = (startPos.y - 24) + 'px';
+                m.style.transition = 'all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                container.appendChild(m);
+                minis.push(m);
+            }
+            
+            setTimeout(() => {
+                for(let i=0; i<4; i++) {
+                    const core = cores[i];
+                    const targetPos = getRelativeCenter(core, container);
+                    
+                    minis[i].style.left = (targetPos.x - 24) + 'px';
+                    minis[i].style.top = (targetPos.y - 24) + 'px';
+                    minis[i].style.transform = 'scale(0.6)';
+                }
+                
+                setTimeout(() => {
+                    for(let i=0; i<4; i++) {
+                        cores[i].classList.add('bg-emerald-200', 'border-emerald-500');
+                        minis[i].remove();
+                    }
+                    setTimeout(() => {
+                        for(let i=0; i<4; i++) cores[i].classList.remove('bg-emerald-200', 'border-emerald-500');
+                        isAnimating = false;
+                        updateButtonStates();
+                        showResetButton('parallel');
+                    }, 800);
+                }, 600);
+            }, 50);
+        }
+
+        // Distributed
+        function vizDistribute() {
+            if(isAnimating) return;
+            isAnimating = true;
+            updateButtonStates();
+            setDemoExplanation('exp_dist_proc');
+            
+            const container = document.getElementById('distContainer');
+            const server = document.getElementById('distServer');
+            const nodes = document.querySelectorAll('.dist-node');
+            
+            const serverPos = getRelativeCenter(server, container);
+            let completed = 0;
+
+            nodes.forEach((node, i) => {
+                const packet = document.createElement('div');
+                packet.className = 'absolute w-4 h-4 bg-purple-500 rounded-full z-20 shadow-md';
+                packet.style.left = (serverPos.x - 8) + 'px';
+                packet.style.top = (serverPos.y - 8) + 'px';
+                packet.style.transition = 'all 0.8s ease-in-out';
+                container.appendChild(packet);
+                
+                const nodePos = getRelativeCenter(node, container);
+
+                setTimeout(() => {
+                    packet.style.left = (nodePos.x - 8) + 'px';
+                    packet.style.top = (nodePos.y - 8) + 'px';
+                    
+                    setTimeout(() => {
+                        node.classList.add('bg-purple-100', 'border-purple-500');
+                        packet.style.backgroundColor = '#10b981'; 
+                        
+                        setTimeout(() => {
+                            packet.style.left = (serverPos.x - 8) + 'px';
+                            packet.style.top = (serverPos.y - 8) + 'px';
+                            node.classList.remove('bg-purple-100', 'border-purple-500');
+                            
+                            setTimeout(() => {
+                                packet.remove();
+                                completed++;
+                                server.style.backgroundColor = '#065f46';
+                                setTimeout(() => server.style.backgroundColor = '', 200);
+
+                                if(completed === nodes.length) {
+                                    isAnimating = false;
+                                    updateButtonStates();
+                                    showResetButton('distributed');
+                                }
+                            }, 800);
+                        }, 600);
+                    }, 800);
+                }, i * 150);
+            });
+        }
+
+        // Virtualisation
+        function vizRunVMs() {
+            if(isAnimating) return;
+            isAnimating = true;
+            updateButtonStates();
+            setDemoExplanation('exp_vm_proc');
+            
+            const bars = document.querySelectorAll('.vm-progress');
+            bars.forEach(bar => {
+                bar.style.transition = 'none';
+                bar.style.width = '0%';
+            });
+            
+            setTimeout(() => {
+                bars.forEach((bar, i) => {
+                    bar.style.transition = `width ${1.5 + Math.random()*2}s ease-in-out`;
+                    bar.style.width = '100%';
+                });
+                
+                setTimeout(() => {
+                    isAnimating = false;
+                    updateButtonStates();
+                    showResetButton('virtualisation');
+                }, 3500);
+            }, 50);
+        }
+
+        // --- Quiz Logic ---
+        function startQuiz() {
+            quizState.active = true;
+            quizState.currentQ = 0;
+            quizState.answers = new Array(i18n[currentLang].quiz.length).fill(null);
+            
+            document.getElementById('learningSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+            document.getElementById('quizNavControls').classList.remove('hidden');
+            renderNav(); 
+            renderQuizQuestion();
+        }
+
+        function exitQuiz() {
+            quizState.active = false;
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('learningSection').classList.remove('hidden');
+            renderNav();
+        }
+
+        function navigateQuiz(dir) {
+            quizState.currentQ += dir;
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const container = document.getElementById('quizContent');
+            const navControls = document.getElementById('quizNavControls');
+            const progress = document.getElementById('quizProgress');
+            const qList = i18n[currentLang].quiz;
+            const t = i18n[currentLang];
+            
+            // Handle Results Screen
+            if (quizState.currentQ >= qList.length) {
+                navControls.classList.add('hidden');
+                progress.innerText = t.quiz_finish;
+                
+                let score = 0;
+                quizState.answers.forEach((ans, idx) => {
+                    if (ans === qList[idx].answer) score++;
+                });
+
+                const isPerfect = score === qList.length;
+
+                container.innerHTML = `
+                    <div class="text-center py-10 fade-in">
+                        <div class="text-7xl mb-6 ${isPerfect ? 'text-emerald-500' : 'text-indigo-500'}">
+                            <i class="fa-solid ${isPerfect ? 'fa-trophy' : 'fa-medal'}"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-3">${t.quiz_score} <span class="${isPerfect ? 'text-emerald-600' : 'text-indigo-600'}">${score} / ${qList.length}</span></h3>
+                        <p class="text-slate-500 mb-8 text-lg">${isPerfect ? t.quiz_perfect_msg : t.quiz_good_msg}</p>
+                        <div class="flex justify-center gap-4">
+                            <button onclick="startQuiz()" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold transition-colors shadow-sm"><i class="fa-solid fa-rotate-right mr-2"></i>${t.quiz_retry}</button>
+                            <button onclick="exitQuiz()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-sm"><i class="fa-solid fa-book-open mr-2"></i>${t.quiz_back}</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render Question
+            navControls.classList.remove('hidden');
+            const qData = qList[quizState.currentQ];
+            progress.innerText = `Question ${quizState.currentQ + 1} of ${qList.length}`;
+            
+            const hasAnswered = quizState.answers[quizState.currentQ] !== null;
+            const selectedIdx = quizState.answers[quizState.currentQ];
+
+            let html = `<div class="fade-in">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 leading-relaxed">${quizState.currentQ + 1}. ${qData.q}</h3>
+                <div class="space-y-3 mb-6">`;
+            
+            qData.options.forEach((opt, idx) => {
+                let btnClass = "w-full text-left p-4 border-2 rounded-xl transition-all font-semibold text-slate-700 ";
+                
+                if (!hasAnswered) {
+                    btnClass += "border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 cursor-pointer";
+                } else {
+                    btnClass += "cursor-default ";
+                    if (idx === qData.answer) {
+                        btnClass += "border-emerald-500 bg-emerald-50 text-emerald-800"; 
+                    } else if (idx === selectedIdx && selectedIdx !== qData.answer) {
+                        btnClass += "border-red-500 bg-red-50 text-red-800"; 
+                    } else {
+                        btnClass += "border-slate-100 opacity-50"; 
+                    }
+                }
+
+                html += `
+                    <button ${hasAnswered ? 'disabled' : `onclick="answerQuestion(${idx})"`} class="${btnClass}">
+                        <div class="flex items-center justify-between">
+                            <span>${opt}</span>
+                            ${hasAnswered && idx === qData.answer ? '<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i>' : ''}
+                            ${hasAnswered && idx === selectedIdx && selectedIdx !== qData.answer ? '<i class="fa-solid fa-circle-xmark text-red-500 text-xl"></i>' : ''}
+                        </div>
+                    </button>
+                `;
+            });
+            html += `</div>`;
+
+            // Explanation Box
+            if (hasAnswered) {
+                const isCorrect = selectedIdx === qData.answer;
+                html += `
+                    <div class="p-5 rounded-xl border ${isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'} fade-in shadow-sm">
+                        <h4 class="font-bold mb-2 flex items-center gap-2 text-lg ${isCorrect ? 'text-emerald-800' : 'text-red-800'}">
+                            <i class="fa-solid ${isCorrect ? 'fa-check' : 'fa-xmark'}"></i>
+                            ${isCorrect ? t.quiz_correct : t.quiz_incorrect}
+                        </h4>
+                        <p class="text-base ${isCorrect ? 'text-emerald-900' : 'text-red-900'} leading-relaxed">${qData.explanation}</p>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+
+            // Update Nav Buttons State
+            document.getElementById('btnQuizPrev').disabled = quizState.currentQ === 0;
+            document.getElementById('btnQuizPrev').className = quizState.currentQ === 0 
+                ? "px-5 py-2.5 bg-slate-50 text-slate-400 rounded-lg font-semibold cursor-not-allowed flex items-center gap-2"
+                : "px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition-colors flex items-center gap-2";
+            
+            const btnNext = document.getElementById('btnQuizNext');
+            if (quizState.currentQ === qList.length - 1) {
+                btnNext.innerHTML = `<span data-i18n="quiz_finish">${t.quiz_finish}</span> <i class="fa-solid fa-flag-checkered"></i>`;
+            } else {
+                btnNext.innerHTML = `<span data-i18n="quiz_next">${t.quiz_next}</span> <i class="fa-solid fa-arrow-right"></i>`;
+            }
+            
+            btnNext.className = hasAnswered 
+                ? "px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md"
+                : "px-5 py-2.5 bg-indigo-300 text-white rounded-lg font-semibold cursor-not-allowed flex items-center gap-2";
+            btnNext.disabled = !hasAnswered;
+        }
+
+        function answerQuestion(selectedIdx) {
+            quizState.answers[quizState.currentQ] = selectedIdx;
+            renderQuizQuestion();
+        }
+
+    </script>
+</body>
+</html>
