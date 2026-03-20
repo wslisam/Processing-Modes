@@ -2,6 +2,8 @@
 
 This interactive web application is designed specifically for students studying Computer System Fundamentals. Its goal is to help you clearly distinguish the characteristics, mechanisms, and real-world applications of various computer processing modes.
 
+<img width="1300" height="978" alt="image" src="https://github.com/user-attachments/assets/f2a96548-8943-4368-8e4e-d4fa04c843b9" />
+
 ## 🎯 What You Will Learn
 By using this tool, you will understand the differences between:
 1. **Batch Processing System (批工件處理系統):** How computers handle massive amounts of data efficiently without human intervention.
