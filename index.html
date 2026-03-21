@@ -261,10 +261,10 @@
                     {
                         id: 'realtime',
                         icon: 'fa-bolt',
-                        title: 'Real-time System',
+                        title: 'Real-time Processing System',
                         desc: 'Data is processed immediately upon input, providing instant output. It is critical for systems where delays (latency) are unacceptable and could cause failure.',
                         why: '<b>Characteristics:</b> Immediate response, continuous availability, handles inputs as they occur.<br><b>Applications:</b> ATM networks, airline ticket booking, online gaming, anti-lock braking systems (ABS).',
-                        misconception: '<b>Student Note:</b> "Real-time" means "guaranteed response within a strict time limit" (determinism). If an ATM takes 5 seconds, it is still an interactive system, but if a car\'s airbag takes 5 seconds, the real-time system has failed.',
+                        misconception: '<b>Student Note:</b> "Real-time" means "guaranteed response within a strict time limit" (determinism). If an ATM takes 5 seconds, it is still an interactive system, but if a car\'s airbag takes 5 seconds, the Real-time Processing System has failed.',
                         vizType: 'realtime'
                     },
                     {
@@ -298,25 +298,25 @@
                 quiz: [
                     { 
                         q: "Which processing mode is best for generating monthly water bills for an entire city?", 
-                        options: ["Real-time System", "Batch Processing System", "Parallel Processing System", "Distributed Processing System"], 
+                        options: ["Real-time Processing System", "Batch Processing System", "Parallel Processing System", "Distributed Processing System"], 
                         answer: 1,
                         explanation: "Batch processing is ideal here because bills do not need to be generated instantly. The meter data can be collected over the month and processed all at once efficiently without human intervention."
                     },
                     { 
                         q: "Booking a seat for a concert online requires which type of system to prevent double-booking?", 
-                        options: ["Batch Processing System", "Virtualization", "Real-time System", "Distributed Processing System"], 
+                        options: ["Batch Processing System", "Virtualization", "Real-time Processing System", "Distributed Processing System"], 
                         answer: 2,
-                        explanation: "Real-time systems process the transaction immediately. This ensures that once you select a seat, it is instantly locked so no one else can book it at the same time."
+                        explanation: "Real-time Processing Systems process the transaction immediately. This ensures that once you select a seat, it is instantly locked so no one else can book it at the same time."
                     },
                     { 
                         q: "Running multiple isolated operating systems (like Linux and Windows) on a single physical school server is an example of:", 
-                        options: ["Virtualization", "Parallel Processing System", "Batch Processing System", "Real-time System"], 
+                        options: ["Virtualization", "Parallel Processing System", "Batch Processing System", "Real-time Processing System"], 
                         answer: 0,
                         explanation: "Virtualization uses a hypervisor to split physical hardware resources, allowing multiple different operating systems to run independently on the same physical machine."
                     },
                     {
                         q: "A research lab connects 500 standard desktop computers across different universities via the internet to analyze astronomical data together. This is:",
-                        options: ["Parallel Processing System", "Real-time System", "Distributed Processing System", "Batch Processing System"],
+                        options: ["Parallel Processing System", "Real-time Processing System", "Distributed Processing System", "Batch Processing System"],
                         answer: 2,
                         explanation: "Because it uses multiple independent computers connected over a network to solve a massive problem, it is a Distributed Processing System."
                     }
