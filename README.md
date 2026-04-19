@@ -2,7 +2,7 @@
 
 This interactive web application is designed specifically for students studying Computer System Fundamentals. Its goal is to help you clearly distinguish the characteristics, mechanisms, and real-world applications of various computer processing modes.
 
-<img width="1300" height="978" alt="image" src="https://github.com/user-attachments/assets/f2a96548-8943-4368-8e4e-d4fa04c843b9" />
+<img width="1480" height="966" alt="image" src="https://github.com/user-attachments/assets/2a0894a2-fc04-4d76-b22b-83f6ab669862" />
 
 ## 🎯 What You Will Learn
 By using this tool, you will understand the differences between:
@@ -25,7 +25,7 @@ By using this tool, you will understand the differences between:
 *   **Read the Explanations:** As the animation plays, read the text box below the demo. It explains exactly what is happening step-by-step.
 
 ### 3. Test Your Knowledge
-*   Once you feel confident, click the **"Take Knowledge Quiz"** button at the bottom of the sidebar.
+*   Once you feel confident, click the **"Module Quiz"** button.
 *   The quiz presents real-world scenarios. Choose the correct processing mode for each scenario.
 *   After answering, read the detailed explanation provided to reinforce your understanding.
 
