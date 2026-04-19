@@ -4,43 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Software: Processing Modes | 系統軟件：處理模式</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MathJax for Formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         
         body {
             font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background-color: #f8fafc;
+            background-color: #f1f5f9;
         }
 
         /* Animation Utilities */
-        .task-node {
-            transition: all 0.5s ease-in-out;
-        }
+        .task-node { transition: all 0.5s ease-in-out; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         
-        .fade-in {
-            animation: fadeIn 0.4s ease-in;
-        }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulse-border {
-            0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-            70% { border-color: #60a5fa; box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-            100% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+            0% { border-color: #6366f1; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { border-color: #818cf8; box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { border-color: #6366f1; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
         }
 
-        .processing-active {
-            animation: pulse-border 1s infinite;
-        }
+        .processing-active { animation: pulse-border 1s infinite; }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
@@ -60,22 +59,38 @@
             transform: none !important;
             box-shadow: none !important;
         }
+
+        /* Emphasized terms */
+        strong.highlight {
+            @apply text-indigo-600 font-bold bg-indigo-50 px-1 rounded;
+        }
     </style>
 </head>
 <body class="text-slate-800 h-screen flex flex-col overflow-hidden">
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-slate-200 z-20 flex-shrink-0 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <!-- Global Header -->
+    <header class="bg-white shadow-sm border-b border-slate-200 z-30 flex-shrink-0 relative">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-lg shadow-sm">
                     <i class="fa-solid fa-microchip text-xl"></i>
                 </div>
-                <h1 class="text-xl font-bold text-slate-800" data-i18n="app_title">System Software: Processing Modes</h1>
+                <h1 class="text-xl font-bold text-slate-800 tracking-tight hidden sm:block" data-i18n="app_title">System Software: Processing Modes</h1>
+                <h1 class="text-xl font-bold text-slate-800 tracking-tight sm:hidden">Processing Modes</h1>
             </div>
-            <div class="flex items-center gap-6">
-                <span class="text-sm text-slate-500 hidden sm:block font-medium not-italic">Created by Sam Li</span>
-                <button id="langToggle" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-full text-sm font-semibold transition-colors shadow-sm" onclick="toggleLanguage()">
+            
+            <div class="flex items-center gap-3 sm:gap-6">
+                <span class="text-sm text-slate-500 hidden md:block font-medium not-italic">Created by Sam Li</span>
+                
+                <!-- Global Quiz Button -->
+                <button onclick="startQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-5 py-2.5 rounded-full text-sm font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-question"></i>
+                    <span data-i18n="take_quiz" class="hidden sm:inline">Module Quiz</span>
+                    <span data-i18n="take_quiz_short" class="sm:hidden">Quiz</span>
+                </button>
+
+                <!-- Language Toggle -->
+                <button id="langToggle" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors border border-slate-200" onclick="toggleLanguage()">
                     <i class="fa-solid fa-language text-indigo-600 text-lg"></i>
                     <span id="langLabel">中文</span>
                 </button>
@@ -84,10 +99,10 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl mx-auto w-full">
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden max-w-[1600px] mx-auto w-full">
         
         <!-- Sidebar Navigation -->
-        <aside class="w-full md:w-72 bg-slate-50 border-r border-slate-200 flex-shrink-0 flex flex-col h-full z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <aside class="w-full md:w-64 lg:w-72 bg-slate-50 border-r border-slate-200 flex-shrink-0 flex flex-col h-full z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
             <div class="p-5 border-b border-slate-200 bg-white">
                 <h2 class="text-sm font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-layer-group text-indigo-500"></i>
@@ -97,93 +112,132 @@
             <nav class="p-4 space-y-2 flex-1 overflow-y-auto" id="navMenu">
                 <!-- Populated by JS -->
             </nav>
-            <div class="p-5 border-t border-slate-200 bg-white">
-                <button onclick="startQuiz()" class="w-full bg-indigo-600 text-white hover:bg-indigo-700 font-bold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-clipboard-question text-lg"></i>
-                    <span data-i18n="take_quiz">Take Knowledge Quiz</span>
-                </button>
-            </div>
         </aside>
 
         <!-- Content Area -->
-        <section class="flex-1 bg-white overflow-y-auto p-4 md:p-8 relative" id="contentArea">
+        <section class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10 relative" id="contentArea">
             
-            <div id="learningSection" class="max-w-4xl mx-auto fade-in">
-                <!-- Header Info -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mb-6">
+            <!-- Learning Section (Grid Layout) -->
+            <div id="learningSection" class="max-w-full mx-auto fade-in">
+                
+                <!-- Topic Header -->
+                <div class="mb-8">
                     <div class="flex items-center gap-4 mb-4">
-                        <div id="modeIcon" class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl"></div>
-                        <h2 id="modeTitle" class="text-3xl font-bold text-slate-800">Mode Title</h2>
+                        <div id="modeIcon" class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl shadow-inner border border-indigo-200 shrink-0"></div>
+                        <h2 id="modeTitle" class="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">Mode Title</h2>
                     </div>
-                    <p id="modeDesc" class="text-slate-600 text-lg leading-relaxed mb-6"></p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-blue-50/50 rounded-xl p-5 border border-blue-100 shadow-sm">
-                            <h3 class="font-bold text-blue-800 mb-3 flex items-center gap-2 text-lg">
-                                <i class="fa-solid fa-lightbulb text-blue-500"></i> <span data-i18n="why_use">Characteristics & Applications</span>
-                            </h3>
-                            <div id="modeWhy" class="text-sm text-blue-900 leading-relaxed space-y-2"></div>
-                        </div>
-                        <div class="bg-amber-50/50 rounded-xl p-5 border border-amber-100 shadow-sm">
-                            <h3 class="font-bold text-amber-800 mb-3 flex items-center gap-2 text-lg">
-                                <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> <span data-i18n="misconception">Key Details for Students</span>
-                            </h3>
-                            <div id="modeMisconception" class="text-sm text-amber-900 leading-relaxed space-y-2"></div>
-                        </div>
-                    </div>
+                    <p id="modeDesc" class="text-lg text-slate-600 font-medium leading-relaxed border-l-4 border-indigo-500 pl-4"></p>
                 </div>
 
-                <!-- Visualization Area -->
-                <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden mb-6">
-                    <div class="bg-slate-800 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-play-circle text-indigo-400"></i> <span data-i18n="interactive_demo">Interactive Demo</span>
-                        </h3>
-                        <div id="controlsArea" class="flex flex-wrap justify-center gap-3">
-                            <!-- Controls injected by JS -->
-                        </div>
-                    </div>
+                <!-- 2-Column CSS Grid Layout -->
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
                     
-                    <!-- Canvas/Stage for Animation -->
-                    <div id="vizStage" class="w-full h-80 bg-slate-50 overflow-hidden flex items-center justify-center p-6 border-b border-slate-200">
-                        <!-- Visualization injected by JS -->
+                    <!-- Left Column (Demo & Concept) -->
+                    <div class="xl:col-span-7 flex flex-col gap-8">
+                        
+                        <!-- Visualization Area -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative">
+                            <div class="absolute top-0 left-0 w-full h-1.5 bg-indigo-500 z-10"></div>
+                            <div class="bg-slate-800 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 mt-1.5">
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-play-circle text-indigo-400"></i> <span data-i18n="interactive_demo">Interactive Demo</span>
+                                </h3>
+                                <div id="controlsArea" class="flex flex-wrap justify-center gap-3">
+                                    <!-- Controls injected by JS -->
+                                </div>
+                            </div>
+                            <div id="vizStage" class="w-full h-80 bg-slate-50 overflow-hidden flex items-center justify-center p-6 border-b border-slate-200">
+                                <!-- Visualization injected by JS -->
+                            </div>
+                            <div class="p-6 bg-indigo-50/60 flex-1">
+                                <h4 class="text-sm font-bold text-indigo-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-info"></i> <span data-i18n="demo_explanation_title">What is happening?</span>
+                                </h4>
+                                <p id="demoExplanation" class="text-slate-700 font-medium min-h-[3rem] transition-all text-base md:text-lg leading-relaxed"></p>
+                            </div>
+                        </div>
+
+                        <!-- Core Mechanism -->
+                        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1.5 bg-slate-400"></div>
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2 text-xl mt-1">
+                                <i class="fa-solid fa-microchip text-slate-500"></i> <span data-i18n="lbl_concept">Core Mechanism</span>
+                            </h3>
+                            <div id="modeConcept" class="text-base md:text-lg text-slate-600 leading-relaxed space-y-4"></div>
+                        </div>
+
                     </div>
 
-                    <!-- Step-by-step Explanation Box -->
-                    <div class="p-6 bg-indigo-50/50">
-                        <h4 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-circle-info"></i> <span data-i18n="demo_explanation_title">What is happening?</span>
-                        </h4>
-                        <p id="demoExplanation" class="text-slate-700 font-medium min-h-[3rem] transition-all text-lg leading-relaxed"></p>
+                    <!-- Right Column (Characteristics, Misconceptions, Think & Link) -->
+                    <div class="xl:col-span-5 flex flex-col gap-8">
+                        
+                        <!-- Characteristics -->
+                        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1.5 bg-blue-500"></div>
+                            <h3 class="font-bold text-blue-800 mb-4 flex items-center gap-2 text-xl mt-1">
+                                <i class="fa-solid fa-lightbulb text-blue-500"></i> <span data-i18n="why_use">Characteristics & Applications</span>
+                            </h3>
+                            <div id="modeWhy" class="text-sm md:text-base text-slate-700 leading-relaxed space-y-2"></div>
+                        </div>
+
+                        <!-- Misconceptions -->
+                        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1.5 bg-amber-500"></div>
+                            <h3 class="font-bold text-amber-800 mb-4 flex items-center gap-2 text-xl mt-1">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> <span data-i18n="misconception">Key Details for Students</span>
+                            </h3>
+                            <div id="modeMisconception" class="text-sm md:text-base text-slate-700 leading-relaxed space-y-2"></div>
+                        </div>
+
+                        <!-- Think & Link (Self-Assessment) -->
+                        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 relative overflow-hidden flex-1 flex flex-col">
+                            <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-500"></div>
+                            <h3 class="font-bold text-emerald-800 mb-4 flex items-center gap-2 text-xl mt-1">
+                                <i class="fa-solid fa-brain text-emerald-600"></i> <span data-i18n="lbl_thinklink">Think & Link (Self-Assessment)</span>
+                            </h3>
+                            <p id="modeThinkQ" class="text-slate-800 font-semibold mb-5 leading-relaxed text-base"></p>
+                            
+                            <textarea id="thinkInput" rows="4" class="w-full p-4 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none shadow-sm mb-5 text-slate-700 bg-slate-50" data-placeholder="placeholder_think"></textarea>
+                            
+                            <button id="btnCompare" onclick="revealTeacherAnalysis()" class="w-full justify-center bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-sm hover:bg-emerald-700 transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-check-double"></i> <span data-i18n="btn_compare">Verify My Understanding</span>
+                            </button>
+
+                            <div id="teacherAnalysisBox" class="mt-6 p-5 bg-emerald-50 border border-emerald-200 rounded-xl shadow-sm hidden opacity-0 transition-opacity duration-500">
+                                <h4 class="font-bold text-emerald-800 mb-3 uppercase tracking-wide text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-comment-dots"></i> <span data-i18n="lbl_analysis">Teacher's Feedback</span>
+                                </h4>
+                                <div id="modeThinkA" class="text-slate-700 leading-relaxed space-y-3 text-sm md:text-base"></div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
 
             <!-- Quiz Section (Hidden by default) -->
-            <div id="quizSection" class="max-w-3xl mx-auto hidden fade-in">
-                <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8">
-                    <div class="flex justify-between items-center mb-8 pb-4 border-b border-slate-100">
-                        <h2 class="text-2xl font-bold text-indigo-900 flex items-center gap-2">
+            <div id="quizSection" class="max-w-4xl mx-auto hidden fade-in mt-2">
+                <div class="bg-white rounded-3xl shadow-lg border border-slate-200 p-8 md:p-10">
+                    <div class="flex justify-between items-center mb-10 pb-5 border-b border-slate-100">
+                        <h2 class="text-3xl font-extrabold text-indigo-900 flex items-center gap-3">
                             <i class="fa-solid fa-clipboard-check text-indigo-500"></i>
                             <span data-i18n="quiz_title">Knowledge Check</span>
                         </h2>
                         <div class="flex items-center gap-4">
-                            <span id="quizProgress" class="text-sm font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">Question 1 of 3</span>
-                            <button onclick="exitQuiz()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-colors" title="Exit Quiz">
-                                <i class="fa-solid fa-xmark"></i>
+                            <span id="quizProgress" class="text-sm font-bold text-slate-500 bg-slate-100 px-4 py-1.5 rounded-full border border-slate-200">Question 1 of 4</span>
+                            <button onclick="exitQuiz()" class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-colors shadow-sm" title="Exit Quiz">
+                                <i class="fa-solid fa-xmark text-lg"></i>
                             </button>
                         </div>
                     </div>
                     <div id="quizContent" class="min-h-[300px]">
                         <!-- Quiz injected by JS -->
                     </div>
-                    
-                    <!-- Quiz Navigation Controls -->
-                    <div id="quizNavControls" class="flex justify-between items-center mt-8 pt-6 border-t border-slate-100 hidden">
-                        <button id="btnQuizPrev" onclick="navigateQuiz(-1)" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition-colors flex items-center gap-2">
+                    <div id="quizNavControls" class="flex justify-between items-center mt-10 pt-6 border-t border-slate-100 hidden">
+                        <button id="btnQuizPrev" onclick="navigateQuiz(-1)" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-arrow-left"></i> <span data-i18n="quiz_prev">Previous</span>
                         </button>
-                        <button id="btnQuizNext" onclick="navigateQuiz(1)" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md">
+                        <button id="btnQuizNext" onclick="navigateQuiz(1)" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors flex items-center gap-2 shadow-md">
                             <span data-i18n="quiz_next">Next</span> <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
@@ -194,27 +248,31 @@
     </main>
 
     <script>
-        // --- Data & Content (Bilingual) ---
+        // --- Data & Content (Bilingual - English Default) ---
         const i18n = {
             en: {
                 app_title: "System Software: Processing Modes",
                 nav_learning_modes: "Learning Modes",
-                take_quiz: "Take Knowledge Quiz",
+                take_quiz: "Module Quiz",
+                take_quiz_short: "Quiz",
+                lbl_concept: "Core Mechanism",
                 why_use: "Characteristics & Applications",
                 misconception: "Key Details for Students",
+                lbl_thinklink: "Think & Link (Self-Assessment)",
+                btn_compare: "Verify My Understanding",
+                lbl_analysis: "Teacher's Feedback",
+                placeholder_think: "Draft your reasoning here before checking the feedback...",
                 interactive_demo: "Interactive Demo",
-                demo_explanation_title: "What is happening in the demo?",
-                quiz_title: "Knowledge Check",
+                demo_explanation_title: "What is happening?",
+                quiz_title: "Module Knowledge Check",
                 
-                // Demo Buttons
+                // Demo Buttons & Labels
                 btn_add_task: "Add Task to Queue",
                 btn_process: "Start Processing",
                 btn_trigger: "Trigger Event",
                 btn_distribute: "Distribute Tasks",
                 btn_run_vms: "Boot Virtual Machines",
                 btn_reset: "Reset Demo",
-                
-                // Demo Labels
                 lbl_queue: "DATA QUEUE",
                 lbl_system: "PROCESSING SYSTEM",
                 lbl_huge_task: "Massive Computation Task",
@@ -254,8 +312,11 @@
                         icon: 'fa-layer-group',
                         title: 'Batch Processing System',
                         desc: 'Data is collected over a period of time and processed together as a "batch" without human intervention. It is typically scheduled during off-peak hours to maximize system resources.',
-                        why: '<b>Characteristics:</b> High efficiency for large volumes of repetitive tasks. No user interaction required during processing.<br><b>Applications:</b> Payroll systems, utility billing (water/electricity bills), exam result processing.',
-                        misconception: '<b>Student Note:</b> Batch processing does NOT mean "slow". It means "delayed execution". The processing itself is extremely fast because it doesn\'t wait for human input. It is heavily used today for training complex AI models.',
+                        concept: '<p>Batch processing minimizes <strong class="highlight">Context Switching</strong> (the overhead of stopping one process to start another). Because user interaction is strictly removed, the CPU can devote 100% of its clock cycles to executing sequential instructions. The system architecture typically relies on a First-In-First-Out (FIFO) queue or scheduled background jobs.</p>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>Characteristics:</strong> High efficiency for large volumes of repetitive tasks. High throughput. No user interaction required during processing.</li><li><strong>Applications:</strong> Payroll systems, utility billing (water/electricity bills), exam result processing (like HKDSE).</li></ul>',
+                        misconception: '<p><strong>Student Note:</strong> Batch processing does NOT mean "slow". It implies "delayed execution". The processing itself is extremely fast because it doesn\'t wait for human input (like typing).</p>',
+                        thinkQ: 'Why does the HKEAA use a Batch Processing System instead of a Real-Time System to calculate the final grades of 50,000 HKDSE students?',
+                        thinkA: '<p>If the HKEAA used a <strong>Real-Time System</strong>, the servers would have to recalculate the overall grading curve every single time a marker submits one paper. This constant updating is inefficient and could cause massive server lag.</p><p>Instead, they use <strong>Batch Processing</strong>. They collect all 50,000 students\' marks safely over several weeks. Then, on a scheduled night, powerful servers run a "batch job" to calculate everyone\'s final grades and curves at the same time without any human interruption. This maximizes CPU efficiency and ensures all students get their results at the exact same moment on release day.</p>',
                         vizType: 'batch'
                     },
                     {
@@ -263,17 +324,23 @@
                         icon: 'fa-bolt',
                         title: 'Real-time Processing System',
                         desc: 'Data is processed immediately upon input, providing instant output. It is critical for systems where delays (latency) are unacceptable and could cause failure.',
-                        why: '<b>Characteristics:</b> Immediate response, continuous availability, handles inputs as they occur.<br><b>Applications:</b> ATM networks, airline ticket booking, online gaming, anti-lock braking systems (ABS).',
-                        misconception: '<b>Student Note:</b> "Real-time" means "guaranteed response within a strict time limit" (determinism). If an ATM takes 5 seconds, it is still an interactive system, but if a car\'s airbag takes 5 seconds, the Real-time Processing System has failed.',
+                        concept: '<p>Real-time systems rely on a <strong class="highlight">Pre-emptive Scheduling OS</strong>. If a critical input arrives, the OS immediately pauses current background tasks to allocate CPU resources to the critical task. There are two main types:</p><ul class="list-decimal pl-5 space-y-1 mt-2"><li><strong>Hard Real-Time:</strong> Missing a deadline causes total system failure (e.g., Airbags).</li><li><strong>Soft Real-Time:</strong> Missing a deadline degrades quality but is acceptable (e.g., Video streaming).</li></ul>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>Characteristics:</strong> Guarantees response time. Requires continuous availability and high fault tolerance.</li><li><strong>Applications:</strong> Anti-lock Braking Systems (ABS), pacemakers, ATM networks, online ticket booking.</li></ul>',
+                        misconception: '<p><strong>Student Note:</strong> "Real-time" means "guaranteed response within a strict time limit" (determinism), not just "fast". If an ATM takes exactly 5 seconds, it is a successful interactive system. If a car\'s airbag takes 5 seconds, the system has failed fatally.</p>',
+                        thinkQ: 'Is a fast-paced multiplayer online video game considered a "Hard Real-time" or "Soft Real-time" system? Justify your answer based on system failure constraints.',
+                        thinkA: '<p>A multiplayer video game is a <strong>Soft Real-time</strong> system.</p><p>In a Soft Real-time system, if the deadline is missed (e.g., a frame drops, or you experience network "lag"), the user experience is degraded and annoying, but it does not lead to catastrophic system failure, physical damage, or loss of life.</p><p>In contrast, <strong>Hard Real-time</strong> systems (like a car\'s airbag deployment) must strictly meet deadlines, or the consequences are fatal.</p>',
                         vizType: 'realtime'
                     },
                     {
                         id: 'parallel',
                         icon: 'fa-microchip',
                         title: 'Parallel Processing System',
-                        desc: 'A single complex task is broken down into smaller parts, which are processed simultaneously by multiple processors (cores) within the SAME computer system.',
-                        why: '<b>Characteristics:</b> Tightly coupled processors sharing memory. Massively reduces computation time for a single complex problem.<br><b>Applications:</b> Weather forecasting, 3D video rendering, complex scientific simulations.',
-                        misconception: '<b>Student Note:</b> Not all tasks can be parallelized. If step B depends on the result of step A, they must be done sequentially. Software must be specifically written to take advantage of multiple cores.',
+                        desc: 'A single complex task is broken down into smaller parts, which are processed simultaneously by multiple processors (cores) within the SAME computer system sharing memory.',
+                        concept: '<p>Parallel systems feature <strong class="highlight">Tightly Coupled Processors</strong>. Because all cores reside on the same motherboard and share RAM, communication between them is near-instantaneous. However, theoretical speedup is limited by <strong>Amdahl\'s Law</strong>.</p><p class="text-center font-serif text-2xl bg-slate-50 border border-slate-200 rounded-xl p-4 my-4 shadow-sm">$$ \\text{Speedup} = \\frac{1}{(1 - P) + \\frac{P}{N}} $$</p><div class="bg-indigo-50 border-l-4 border-indigo-400 p-5 text-sm rounded-r-lg text-slate-700 shadow-sm"><p class="font-bold text-indigo-800 mb-3 text-base"><i class="fa-solid fa-utensils mr-2"></i> Making sense of the variables:</p><ul class="space-y-2"><li><strong class="text-indigo-600 bg-white px-2 py-0.5 rounded shadow-sm">P</strong> : The part of the task that <b>can be shared</b> (e.g., chopping 100 carrots).</li><li><strong class="text-indigo-600 bg-white px-2 py-0.5 rounded shadow-sm">1 - P</strong> : The part that <b>must wait sequentially</b> (e.g., waiting 30 mins for the soup to boil).</li><li><strong class="text-indigo-600 bg-white px-2 py-0.5 rounded shadow-sm">N</strong> : The <b>number of CPU Cores</b> (e.g., number of kitchen helpers).</li></ul><p class="mt-3 text-slate-600 italic">Conclusion: No matter how many helpers (N) you add to chop carrots (P), you still have to wait 30 minutes for the soup to boil (1 - P). This is why adding more cores doesn\'t mean infinitely faster speeds!</p></div>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>Characteristics:</strong> Tightly coupled. Massively reduces computation time for a single complex problem.</li><li><strong>Applications:</strong> Weather forecasting, 3D video rendering, complex scientific simulations.</li></ul>',
+                        misconception: '<p><strong>Student Note:</strong> Not all tasks can be parallelized. If step B mathematically depends on the result of step A, they must be done sequentially. Furthermore, software must be specifically rewritten (multi-threaded) to take advantage of multiple cores.</p>',
+                        thinkQ: 'If a computer has 100 processor cores, why might a badly written piece of software still run just as slow as it would on a single-core computer?',
+                        thinkA: '<p>This occurs due to a lack of <strong>Multi-threading</strong> in the software design and the limitations of <strong>Amdahl\'s Law</strong>.</p><p>If the software is written sequentially (single-threaded), the Operating System can only assign the program to 1 core. The remaining 99 cores will sit completely idle. For Parallel Processing to work, the programmer must explicitly divide the algorithm so that chunks of data can be processed independently.</p>',
                         vizType: 'parallel'
                     },
                     {
@@ -281,17 +348,23 @@
                         icon: 'fa-network-wired',
                         title: 'Distributed Processing System',
                         desc: 'Multiple independent computers connected via a network (like the Internet or a LAN) work together to solve a single massive problem or provide a unified service.',
-                        why: '<b>Characteristics:</b> Loosely coupled. High fault tolerance (if one computer fails, others continue). Highly scalable.<br><b>Applications:</b> Blockchain, cloud storage (Google Drive), SETI@home, large-scale web search engines.',
-                        misconception: '<b>Student Note:</b> Do not confuse Parallel and Distributed! Distributed uses entirely separate computers over a network; parallel uses multiple CPUs in one single machine.',
+                        concept: '<p>Distributed systems are <strong class="highlight">Loosely Coupled</strong>. Nodes (computers) have their own CPU, Memory, and OS, and communicate via network protocols (like TCP/IP). They excel at <strong>Horizontal Scaling</strong> (adding more cheap computers rather than buying one expensive supercomputer). A key architectural challenge is maintaining Data Consistency across the network.</p>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>Characteristics:</strong> Loosely coupled. High fault tolerance (if one computer fails, others continue). Highly scalable.</li><li><strong>Applications:</strong> Blockchain, cloud storage (Google Drive), SETI@home, large-scale web search engines.</li></ul>',
+                        misconception: '<p><strong>Student Note:</strong> Do not confuse Parallel and Distributed! Distributed uses entirely separate computers over a network passing messages; Parallel uses multiple CPUs inside <em>one single machine</em> sharing memory.</p>',
+                        thinkQ: 'What happens to a Distributed System (like Google\'s search engine) if a physical server rack suddenly loses power or network connection?',
+                        thinkA: '<p>The system will continue to function normally due to <strong>Fault Tolerance</strong>.</p><p>In a Distributed System, workloads and data are replicated across multiple autonomous nodes. When a central load-balancer detects that a node has dropped offline, it instantly reroutes the traffic to other healthy nodes in the network. The system as a whole avoids a single point of failure.</p>',
                         vizType: 'distributed'
                     },
                     {
                         id: 'virtualisation',
                         icon: 'fa-cubes',
-                        title: 'Virtualization',
+                        title: 'Virtualisation',
                         desc: 'Creating a virtual (software-based) version of physical resources, such as an operating system, server, storage device, or network resources, using a Hypervisor.',
-                        why: '<b>Characteristics:</b> Resource isolation, hardware independence, cost-efficiency.<br><b>Applications:</b> Cloud computing (AWS, Azure), running Windows on a Mac, testing software in safe "sandbox" environments.',
-                        misconception: '<b>Student Note:</b> A virtual machine acts exactly like a real physical computer to the software running inside it. If a virus attacks a VM, it generally cannot escape to harm the physical host machine.',
+                        concept: '<p>The core technology is the <strong class="highlight">Hypervisor</strong> (Virtual Machine Monitor). It acts as a translation layer between the physical hardware and the Virtual Machines (VMs). Type 1 Hypervisors run directly on the hardware (bare-metal, used in data centers), while Type 2 run on top of a host OS. Virtualisation provides strict sandboxing and resource allocation.</p>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>Characteristics:</strong> Resource isolation, hardware independence, cost-efficiency. Maximizes physical hardware utilization.</li><li><strong>Applications:</strong> Cloud computing (AWS EC2, Azure), running Windows on macOS, testing software in safe "sandbox" environments.</li></ul>',
+                        misconception: '<p><strong>Student Note:</strong> A virtual machine acts exactly like a real physical computer to the software inside it. If a virus attacks a VM, it is sandboxed and generally cannot escape to harm the physical host machine.</p>',
+                        thinkQ: 'Why do modern Web Hosting and Cloud companies (like Amazon Web Services) sell "Virtual Machines" to customers instead of renting out dedicated physical servers?',
+                        thinkA: '<p>They do this to achieve <strong>Resource Maximization and Isolation</strong>.</p><p>Most software applications do not utilize 100% of a modern powerful server\'s CPU and RAM. By using Virtualisation, a cloud provider can slice one physical server into 20 isolated Virtual Machines and sell them to 20 different customers. This drastically reduces hardware waste, saves electricity, lowers costs, and ensures one customer\'s traffic spike doesn\'t crash another\'s server.</p>',
                         vizType: 'virtualisation'
                     }
                 ],
@@ -325,44 +398,45 @@
             zh: {
                 app_title: "系統軟件：處理模式",
                 nav_learning_modes: "學習模式",
-                take_quiz: "進行知識測驗",
+                take_quiz: "單元總測驗",
+                take_quiz_short: "測驗",
+                lbl_concept: "核心運作原理",
                 why_use: "特性及應用",
                 misconception: "學生注意事項",
+                lbl_thinklink: "思考與連結 (自我檢測)",
+                btn_compare: "驗證我的理解",
+                lbl_analysis: "老師回饋",
+                placeholder_think: "在查看解析前，請先在此草擬你的推理邏輯...",
                 interactive_demo: "互動演示",
                 demo_explanation_title: "演示中發生了什麼事？",
-                quiz_title: "知識測試",
+                quiz_title: "單元知識測試",
                 
-                // Demo Buttons
                 btn_add_task: "加入任務到佇列",
                 btn_process: "開始處理",
                 btn_trigger: "觸發事件",
                 btn_distribute: "分配任務",
                 btn_run_vms: "啟動虛擬機",
                 btn_reset: "重置演示",
-                
-                // Demo Labels
                 lbl_queue: "數據佇列 (QUEUE)",
                 lbl_system: "處理系統",
                 lbl_huge_task: "龐大的計算任務",
-                lbl_core: "核心",
+                lbl_core: "核心 (Core)",
                 lbl_main_server: "主伺服器",
                 lbl_hardware: "實體硬體 (Hardware)",
                 lbl_hypervisor: "虛擬機器監視器 (Hypervisor)",
                 
-                // Demo Explanations
                 exp_batch_init: "點擊「加入任務」來模擬隨時間收集數據。系統會等待直到形成一個批次。請注意，在有數據之前，「開始處理」按鈕是禁用的。",
                 exp_batch_add: "數據已加入佇列。它被儲存起來，但尚未處理。系統正在等待預定的處理時間或直到批次已滿。",
-                exp_batch_proc: "一次性處理整個批次而不中斷。請注意它是如何循序漸進且高效地處理所有內容的，無需人為干預。一旦開始，直到佇列清空才會停止。",
+                exp_batch_proc: "一次性且循序漸進地處理整個批次而不中斷。過程無須人為干預，極度高效。",
                 exp_rt_init: "點擊「觸發事件」來模擬立即的現實世界輸入（如網上預訂請求或感測器讀數）。",
-                exp_rt_proc: "輸入立即發送到系統，立即處理，並毫不延遲地產生輸出。保證了嚴格的時間性和互動反饋。",
+                exp_rt_proc: "輸入會立即發送到系統，進行搶佔式處理 (Preemptively processed)，並在嚴格的時限內產生輸出，保證互動反饋。",
                 exp_par_init: "點擊「開始處理」看看單台電腦如何處理龐大的任務。",
                 exp_par_proc: "龐大的任務被分成較小的區塊。同一台電腦內的多個 CPU 核心同時處理這些區塊，大幅節省了總計算時間。",
                 exp_dist_init: "點擊「分配任務」看看電腦網絡如何協作。",
                 exp_dist_proc: "主伺服器透過網絡將問題的各個部分發送給獨立的電腦。它們在本地處理數據並將結果返回給主伺服器。",
-                exp_vm_init: "點擊「啟動虛擬機」看看一台實體伺服器如何充當多台伺服器。",
-                exp_vm_proc: "Hypervisor 分配實體資源（CPU、RAM）以創建隔離的虛擬環境。每個虛擬機在同一硬體上同時運行自己的作業系統。",
+                exp_vm_init: "點擊「啟動虛擬機」看看硬件抽象化的過程。",
+                exp_vm_proc: "Hypervisor 分配實體資源（CPU、RAM）以創建隔離的虛擬環境。每個虛擬機在同一硬體上並發運行自己的作業系統。",
 
-                // Quiz UI
                 quiz_prev: "上一題",
                 quiz_next: "下一題",
                 quiz_finish: "查看結果",
@@ -378,71 +452,86 @@
                     {
                         id: 'batch',
                         icon: 'fa-layer-group',
-                        title: '批工件處理系統',
+                        title: '批工件處理系統 (Batch Processing System)',
                         desc: '在一段時間內收集數據，然後在沒有人為干預的情況下作為一個「批次」一起處理。通常安排在非繁忙時段進行，以最大化系統資源。',
-                        why: '<b>特性：</b>對於大量重複性任務非常高效。處理期間不需要用戶互動。<br><b>應用：</b>薪資計算系統、公用事業帳單（水費/電費單）、考試成績處理。',
-                        misconception: '<b>學生注意事項：</b>批工件處理並不意味著「慢」。它意味著「延遲執行」。處理本身非常快，因為它不需要等待人為輸入。現今仍大量應用於訓練複雜的 AI 模型。',
+                        concept: '<p>批次處理能將 <strong class="highlight">上下文切換 (Context Switching)</strong>（停止一個進程以啟動另一個進程的開銷）減至最低。因為排除了用戶互動，CPU 可以將 100% 的時鐘週期用於執行循序指令。系統架構通常依賴於先進先出 (FIFO) 佇列或排程的背景作業。</p>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>特性：</strong>對於大量重複性任務非常高效。高吞吐量。處理期間不需要用戶互動。</li><li><strong>應用：</strong>薪資計算系統、水電費帳單、考試成績處理 (如 HKDSE 考評局成績計算)。</li></ul>',
+                        misconception: '<p><strong>學生注意事項：</strong>批工件處理並不意味著「慢」。它意味著「延遲執行 (Delayed execution)」。處理本身非常快，因為它不需要等待緩慢的人為輸入。</p>',
+                        thinkQ: '為什麼考評局 (HKEAA) 要使用「批工件處理系統」而不是「即時處理系統」來計算 5 萬名 DSE 考生的最終成績？',
+                        thinkA: '<p>如果考評局使用<strong>即時系統</strong>，每當一位閱卷員輸入一份考卷的分數，系統就要重新計算一次全港考生的整體拉曲線 (拉 Curve)。這種無間斷的實時更新效率極低，並會導致伺服器嚴重超出負荷 (Server Lag)。</p><p>相反，考評局會使用<strong>批工件處理 (Batch Processing)</strong>。他們會花幾星期的時間安全地收集所有 5 萬名考生的分數。然後，在預定的某個晚上，強大的伺服器會執行一個「批次任務」，在沒有人為干預的情況下一次過計算所有人的最終成績和等級。這不僅能最大化電腦效能，還能保證所有考生在放榜當日能同一時間收到成績。</p>',
                         vizType: 'batch'
                     },
                     {
                         id: 'realtime',
                         icon: 'fa-bolt',
-                        title: '實時系統',
-                        desc: '輸入數據後立即處理並提供即時輸出。對於不能容忍延遲（Latency）且可能導致系統失敗的系統至關重要。',
-                        why: '<b>特性：</b>即時回應，持續可用，在輸入發生時立即處理。<br><b>應用：</b>自動櫃員機 (ATM) 網絡、機票預訂、網上遊戲、防鎖死煞車系統 (ABS)。',
-                        misconception: '<b>學生注意事項：</b>「實時」意味著「在嚴格的時間限制內保證回應」（確定性）。如果 ATM 需要 5 秒，它仍然是一個互動系統；但如果汽車的安全氣囊需要 5 秒，該實時系統就徹底失敗了。',
+                        title: '即時處理系統 (Real-time Processing System)',
+                        desc: '輸入數據後立即處理並提供即時輸出。對於不能容忍延遲（Latency）且可能導致系統失敗的情境至關重要。',
+                        concept: '<p>即時系統依賴於 <strong class="highlight">搶佔式排程作業系統 (Pre-emptive Scheduling OS)</strong>。如果關鍵輸入到達，OS 會立即暫停當前的背景任務，將 CPU 資源分配給關鍵任務。主要分為兩類：</p><ul class="list-decimal pl-5 space-y-1 mt-2"><li><strong>硬即時 (Hard Real-Time):</strong> 錯過死線會導致系統徹底失敗（如安全氣囊）。</li><li><strong>軟即時 (Soft Real-Time):</strong> 錯過死線會降低品質但可接受（如影片串流）。</li></ul>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>特性：</strong>保證回應時間。需要持續可用性和高容錯性 (Fault Tolerance)。</li><li><strong>應用：</strong>防鎖死煞車系統 (ABS)、自動櫃員機 (ATM) 網絡、機票預訂、網上遊戲。</li></ul>',
+                        misconception: '<p><strong>學生注意事項：</strong>「即時」意味著「在嚴格的時間限制內保證回應」（確定性 Determinism），而不是單純的「快」。如果一部自動手臂設定準確花 5.0 秒移動，它就是成功的系統；若花 5.1 秒導致產品損壞，即時系統便算失敗。</p>',
+                        thinkQ: '節奏快速的多人線上電子遊戲被視為「硬即時 (Hard Real-time)」還是「軟即時 (Soft Real-time)」系統？請根據系統失敗的限制來證明你的答案。',
+                        thinkA: '<p>多人電子遊戲是一個 <strong>軟即時 (Soft Real-time)</strong> 系統。</p><p>在軟即時系統中，如果錯過了死線（例如掉幀或網絡「Lag 機」），用戶體驗會下降並且令人困擾，但它不會導致災難性的系統故障、物理損壞或生命損失。</p><p>相反，<strong>硬即時 (Hard Real-time)</strong> 系統（如汽車的安全氣囊彈出）必須嚴格遵守死線，否則後果是致命的。</p>',
                         vizType: 'realtime'
                     },
                     {
                         id: 'parallel',
                         icon: 'fa-microchip',
-                        title: '並行式處理系統',
-                        desc: '將單個複雜任務分解為較小的部分，由同一台計算機系統內的多個處理器（核心）同時處理。',
-                        why: '<b>特性：</b>緊密耦合的處理器共享記憶體。大幅減少單個複雜問題的計算時間。<br><b>應用：</b>天氣預報、3D 影片渲染、複雜的科學模擬。',
-                        misconception: '<b>學生注意事項：</b>並非所有任務都可以並行化。如果步驟 B 依賴於步驟 A 的結果，它們必須按順序完成。軟件必須專門編寫以利用多個核心。',
+                        title: '並行式處理系統 (Parallel Processing System)',
+                        desc: '將單個複雜任務分解為較小的部分，由同一台計算機系統內、共用記憶體的多個處理器（核心）同時處理。',
+                        concept: '<p>並行系統具有 <strong class="highlight">緊密耦合的處理器 (Tightly Coupled Processors)</strong>。因為所有核心都在同一塊主機板上並共用 RAM，所以它們之間的通訊幾乎是即時的。然而，理論上的速度提升受到 <strong>阿姆達爾定律 (Amdahl\'s Law)</strong> 的限制。</p><p class="text-center font-serif text-2xl bg-slate-50 border border-slate-200 rounded-xl p-4 my-4 shadow-sm">$$ \\text{Speedup} = \\frac{1}{(1 - P) + \\frac{P}{N}} $$</p><div class="bg-indigo-50/70 border-l-4 border-indigo-400 p-5 text-sm rounded-r-lg text-slate-700 shadow-sm"><p class="font-bold text-indigo-800 mb-3 text-base"><i class="fa-solid fa-utensils mr-2"></i> 拆解公式變數：</p><ul class="space-y-2"><li><strong class="text-indigo-600 bg-white px-2 py-0.5 rounded shadow-sm">P</strong> : 可以<b>分工合作</b>的部分（例如：切 100 條紅蘿蔔）。</li><li><strong class="text-indigo-600 bg-white px-2 py-0.5 rounded shadow-sm">1 - P</strong> : 必須<b>按順序等待</b>的部分（例如：等候湯煲滾的 30 分鐘）。</li><li><strong class="text-indigo-600 bg-white px-2 py-0.5 rounded shadow-sm">N</strong> : CPU <b>核心數量</b>（例如：廚房幫手的數量）。</li></ul><p class="mt-3 text-slate-600 italic">結論：無論你找多少個幫手 (N) 來一起切紅蘿蔔 (P)，你依然必須死等那 30 分鐘讓湯煲滾 (1 - P)。這就是為什麼不斷增加核心數量，並不代表電腦速度能無限制地提升！</p></div>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>特性：</strong>緊密耦合。大幅減少單個複雜問題的計算時間。</li><li><strong>應用：</strong>天氣預報、3D 影片渲染、複雜的科學模擬。</li></ul>',
+                        misconception: '<p><strong>學生注意事項：</strong>並非所有任務都可以並行化。如果步驟 B 依賴於步驟 A 的結果，它們必須按循序完成。此外，軟件必須專門改寫（多執行緒 Multi-threaded）才能利用多個核心。</p>',
+                        thinkQ: '如果一台電腦有 100 個處理器核心，為什麼一個編寫得很差的軟件運行起來可能和在單核心電腦上一樣慢？',
+                        thinkA: '<p>這是由於軟件設計缺乏 <strong>多執行緒 (Multi-threading)</strong> 以及 <strong>阿姆達爾定律 (Amdahl\'s Law)</strong> 的限制。</p><p>如果軟件是循序編寫的（單執行緒），作業系統只能將程式分配給 1 個核心。其餘的 99 個核心將處於完全閒置狀態。要使並行處理發揮作用，程式設計師必須明確地劃分算法，讓數據塊能夠獨立地處理。</p>',
                         vizType: 'parallel'
                     },
                     {
                         id: 'distributed',
                         icon: 'fa-network-wired',
-                        title: '分布式處理系統',
+                        title: '分布式處理系統 (Distributed Processing System)',
                         desc: '通過網絡（如互聯網或區域網）連接的多台獨立計算機協同工作，以解決單個龐大的問題或提供統一的服務。',
-                        why: '<b>特性：</b>鬆散耦合。高容錯性（如果一台電腦發生故障，其他電腦會繼續工作）。高度可擴展。<br><b>應用：</b>區塊鏈、雲端儲存 (Google Drive)、SETI@home、大型網絡搜索引擎。',
-                        misconception: '<b>學生注意事項：</b>不要混淆並行式和分布式！分布式使用網絡上完全獨立的計算機；並行式處理使用同一台機器內的多個 CPU。',
+                        concept: '<p>分布式系統是 <strong class="highlight">鬆散耦合的 (Loosely Coupled)</strong>。節點 (Nodes) 擁有自己的 CPU、記憶體和 OS，並通過網絡協議（如 TCP/IP）進行通訊。它們非常擅長 <strong>水平擴展 (Horizontal Scaling)</strong>。一個關鍵的架構挑戰是維持網絡間的數據一致性 (Data Consistency)。</p>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>特性：</strong>鬆散耦合。高容錯性（如果一台電腦發生故障，其他電腦會繼續工作）。高度可擴展。</li><li><strong>應用：</strong>區塊鏈、雲端儲存 (Google Drive)、SETI@home、大型網絡搜索引擎。</li></ul>',
+                        misconception: '<p><strong>學生注意事項：</strong>不要混淆並行式和分布式！分布式使用網絡上「完全獨立的機器」傳遞訊息；並行式處理使用「同一台機器內」共用記憶體的多個 CPU。</p>',
+                        thinkQ: '如果一個實體伺服器機櫃突然斷電或失去網絡連接，分布式系統（如 Google 的搜索引擎）會發生什麼事？',
+                        thinkA: '<p>由於 <strong>容錯性 (Fault Tolerance)</strong>，系統將繼續正常運作。</p><p>在分布式系統中，工作負載和數據被複製到多個自主節點上。當中央負載平衡器檢測到某個節點離線時，它會立即將流量重新路由到網絡中其他健康的節點。整個系統避免了單點故障 (Single Point of Failure)。</p>',
                         vizType: 'distributed'
                     },
                     {
                         id: 'virtualisation',
                         icon: 'fa-cubes',
-                        title: '虛擬化',
+                        title: '虛擬化 (Virtualisation)',
                         desc: '使用 Hypervisor 創建物理資源（如操作系統、伺服器、存儲設備或網絡資源）的虛擬（基於軟件）版本。',
-                        why: '<b>特性：</b>資源隔離、硬件獨立性、成本效益高。<br><b>應用：</b>雲端計算 (AWS, Azure)、在 Mac 上運行 Windows、在安全的「沙盒」環境中測試軟件。',
-                        misconception: '<b>學生注意事項：</b>虛擬機對於在其中運行的軟件來說，行為與真實的物理計算機完全相同。如果病毒攻擊了虛擬機，它通常無法逃逸出來損害物理主機。',
+                        concept: '<p>核心技術是 <strong class="highlight">虛擬機器監視器 (Hypervisor)</strong>。它充當實體硬件和虛擬機 (VM) 之間的翻譯層。第一型 Hypervisor 直接在硬件上運行（裸機 Bare-metal，用於數據中心），而第二型則在主機 OS 之上運行。虛擬化提供嚴格的沙盒隔離 (Sandboxing) 和資源分配。</p>',
+                        why: '<ul class="list-disc pl-4 space-y-2"><li><strong>特性：</strong>資源隔離、硬件獨立性、成本效益高。最大化實體硬件的使用率。</li><li><strong>應用：</strong>雲端計算 (AWS, Azure)、在 Mac 上運行 Windows、在安全的「沙盒」環境中測試軟件。</li></ul>',
+                        misconception: '<p><strong>學生注意事項：</strong>虛擬機對於在其中運行的軟件來說，行為與真實的物理計算機完全相同。由於被嚴格隔離，如果病毒攻擊了虛擬機，它通常無法逃逸出來損害物理主機。</p>',
+                        thinkQ: '為什麼現代網頁寄存和雲端公司（如 Amazon Web Services）向客戶出售「虛擬機」，而不是出租專用的實體伺服器？',
+                        thinkA: '<p>他們這樣做是為了實現 <strong>資源最大化與隔離 (Resource Maximization and Isolation)</strong>。</p><p>大多數軟件應用程式不會用到強大伺服器 100% 的 CPU 和 RAM。透過使用虛擬化，雲端供應商可以將一台實體伺服器切割成 20 個隔離的虛擬機，並出售給 20 個不同的客戶。這大幅減少了硬件浪費、降低成本，並確保客戶之間的運作互不干擾。</p>',
                         vizType: 'virtualisation'
                     }
                 ],
                 quiz: [
                     { 
                         q: "哪種處理模式最適合為整個城市生成每月的水費單？", 
-                        options: ["實時系統", "批工件處理系統", "並行式處理系統", "分布式處理系統"], 
+                        options: ["即時系統", "批工件處理系統", "並行式處理系統", "分布式處理系統"], 
                         answer: 1,
                         explanation: "批工件處理系統在這裡是最理想的，因為帳單不需要立即生成。水錶數據可以在整個月內收集，然後在沒有人為干預的情況下一次性高效處理。"
                     },
                     { 
                         q: "在網上預訂演唱會座位需要哪種類型的系統來防止重複預訂？", 
-                        options: ["批工件處理系統", "虛擬化", "實時系統", "分布式處理系統"], 
+                        options: ["批工件處理系統", "虛擬化", "即時系統", "分布式處理系統"], 
                         answer: 2,
-                        explanation: "實時系統會立即處理交易。這確保了一旦你選擇了座位，它就會立即被鎖定，其他人無法同時預訂。"
+                        explanation: "即時系統會立即處理交易。這確保了一旦你選擇了座位，它就會立即被鎖定，其他人無法同時預訂。"
                     },
                     { 
                         q: "在一台實體學校伺服器上同時獨立運行多個作業系統（如 Linux 和 Windows）是什麼的例子？", 
-                        options: ["虛擬化", "並行式處理系統", "批工件處理系統", "實時系統"], 
+                        options: ["虛擬化", "並行式處理系統", "批工件處理系統", "即時系統"], 
                         answer: 0,
                         explanation: "虛擬化使用 Hypervisor 來分割實體硬體資源，允許多個不同的作業系統在同一台實體機器上獨立運行。"
                     },
                     {
                         q: "一個研究實驗室通過互聯網連接了不同大學的 500 台標準桌上型電腦，共同分析天文數據。這是：",
-                        options: ["並行式處理系統", "實時系統", "分布式處理系統", "批工件處理系統"],
+                        options: ["並行式處理系統", "即時系統", "分布式處理系統", "批工件處理系統"],
                         answer: 2,
                         explanation: "因為它使用通過網絡連接的多台獨立計算機來解決一個龐大的問題，所以這是分布式處理系統。"
                     }
@@ -451,11 +540,10 @@
         };
 
         // --- State Management ---
-        let currentLang = 'en';
+        let currentLang = 'en'; // Default language is English
         let currentModeIndex = 0;
         let isAnimating = false;
         
-        // Quiz State
         let quizState = { 
             active: false, 
             currentQ: 0, 
@@ -487,9 +575,15 @@
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (i18n[currentLang][key]) {
-                    if (el.tagName === 'SPAN' || el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4') {
-                        el.innerText = i18n[currentLang][key];
-                    }
+                    el.innerHTML = i18n[currentLang][key];
+                }
+            });
+            
+            // Update Placeholders
+            document.querySelectorAll('[data-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-placeholder');
+                if(i18n[currentLang][key]){
+                    el.setAttribute('placeholder', i18n[currentLang][key]);
                 }
             });
         }
@@ -512,12 +606,12 @@
                 const btn = document.createElement('button');
                 const isActive = index === currentModeIndex && !quizState.active;
                 
-                btn.className = `w-full text-left px-4 py-3 rounded-xl transition-all flex items-center gap-3 mb-2 ${
+                btn.className = `w-full text-left px-5 py-4 rounded-xl transition-all flex items-center gap-4 mb-2 ${
                     isActive 
                     ? 'bg-indigo-600 text-white shadow-md font-bold' 
                     : 'text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 font-medium'
                 }`;
-                btn.innerHTML = `<i class="fa-solid ${mode.icon} w-6 text-center text-lg"></i> <span>${mode.title}</span>`;
+                btn.innerHTML = `<i class="fa-solid ${mode.icon} w-6 text-center text-xl"></i> <span class="text-[15px] leading-tight">${mode.title}</span>`;
                 btn.onclick = () => {
                     if(isAnimating) return;
                     if(quizState.active) exitQuiz();
@@ -532,18 +626,69 @@
             currentModeIndex = index;
             const mode = i18n[currentLang].modes[index];
             
+            // Title & Descriptions
             document.getElementById('modeTitle').innerText = mode.title;
             document.getElementById('modeDesc').innerText = mode.desc;
+            document.getElementById('modeConcept').innerHTML = mode.concept;
             document.getElementById('modeWhy').innerHTML = mode.why;
             document.getElementById('modeMisconception').innerHTML = mode.misconception;
             
+            // Think & Link Data
+            document.getElementById('modeThinkQ').innerText = mode.thinkQ;
+            document.getElementById('modeThinkA').innerHTML = mode.thinkA;
+            resetThinkLinkUI();
+
             const iconContainer = document.getElementById('modeIcon');
             iconContainer.innerHTML = `<i class="fa-solid ${mode.icon}"></i>`;
             
             renderNav();
             setupVisualization(mode.vizType);
+
+            // Re-render MathJax formulas if present
+            if(window.MathJax) {
+                MathJax.typesetPromise();
+            }
         }
 
+        // --- Think & Link Logic ---
+        function resetThinkLinkUI() {
+            const input = document.getElementById('thinkInput');
+            const btn = document.getElementById('btnCompare');
+            const answerBox = document.getElementById('teacherAnalysisBox');
+
+            input.value = '';
+            input.disabled = false;
+            input.classList.remove('bg-slate-200', 'text-slate-500', 'border-slate-200');
+            input.classList.add('bg-slate-50');
+            
+            btn.disabled = false;
+            btn.classList.remove('hidden');
+
+            answerBox.classList.add('hidden', 'opacity-0');
+        }
+
+        function revealTeacherAnalysis() {
+            const input = document.getElementById('thinkInput');
+            const btn = document.getElementById('btnCompare');
+            const answerBox = document.getElementById('teacherAnalysisBox');
+
+            // Lock Input
+            input.disabled = true;
+            input.classList.remove('bg-slate-50');
+            input.classList.add('bg-slate-200', 'text-slate-500', 'border-slate-200');
+
+            // Hide Button
+            btn.classList.add('hidden');
+
+            // Show Analysis
+            answerBox.classList.remove('hidden');
+            // Slight delay for fade in effect
+            setTimeout(() => {
+                answerBox.classList.remove('opacity-0');
+            }, 50);
+        }
+
+        // --- Demo UI Helpers ---
         function showResetButton(type) {
             const controls = document.getElementById('controlsArea');
             const t = i18n[currentLang];
@@ -559,7 +704,6 @@
         }
 
         function updateButtonStates() {
-            const t = i18n[currentLang];
             const mode = i18n[currentLang].modes[currentModeIndex].vizType;
             
             if (mode === 'batch') {
@@ -582,7 +726,6 @@
             }
         }
 
-        // --- Helper for accurate relative positioning ---
         function getRelativeCenter(element, container) {
             const elRect = element.getBoundingClientRect();
             const contRect = container.getBoundingClientRect();
@@ -592,7 +735,7 @@
             };
         }
 
-        // --- Visualizations ---
+        // --- Visualizations Setup ---
         function setupVisualization(type) {
             const stage = document.getElementById('vizStage');
             const controls = document.getElementById('controlsArea');
@@ -656,11 +799,11 @@
                     <div class="demo-container flex-col gap-8 w-full h-full relative" id="parContainer">
                         <div class="flex flex-col items-center gap-8 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full">
                             <div id="parTask" class="w-64 h-16 bg-slate-700 text-white rounded-xl flex items-center justify-center font-bold shadow-lg text-lg z-10 transition-opacity duration-300 text-center px-2">${t.lbl_huge_task}</div>
-                            <div class="flex gap-6 w-full justify-center" id="parCores">
-                                <div class="w-24 h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-2xl text-emerald-600 mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 1</span></div>
-                                <div class="w-24 h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-2xl text-emerald-600 mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 2</span></div>
-                                <div class="w-24 h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-2xl text-emerald-600 mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 3</span></div>
-                                <div class="w-24 h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-2xl text-emerald-600 mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 4</span></div>
+                            <div class="flex gap-4 w-full justify-center" id="parCores">
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-xl sm:text-2xl text-emerald-600 mb-1 sm:mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 1</span></div>
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-xl sm:text-2xl text-emerald-600 mb-1 sm:mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 2</span></div>
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-xl sm:text-2xl text-emerald-600 mb-1 sm:mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 3</span></div>
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 border-2 border-emerald-400 bg-emerald-50 rounded-xl flex flex-col items-center justify-center relative shadow-sm transition-colors"><i class="fa-solid fa-microchip text-xl sm:text-2xl text-emerald-600 mb-1 sm:mb-2"></i><span class="text-xs font-bold text-emerald-800">${t.lbl_core} 4</span></div>
                             </div>
                         </div>
                     </div>
@@ -672,15 +815,15 @@
                 `;
                 stage.innerHTML = `
                     <div class="demo-container w-full h-full relative" id="distContainer">
-                        <div id="distServer" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-slate-800 rounded-2xl flex flex-col items-center justify-center text-white z-10 shadow-xl">
-                            <i class="fa-solid fa-server text-4xl mb-2"></i>
-                            <span class="text-xs font-bold text-center px-2">${t.lbl_main_server}</span>
+                        <div id="distServer" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 bg-slate-800 rounded-2xl flex flex-col items-center justify-center text-white z-10 shadow-xl">
+                            <i class="fa-solid fa-server text-3xl mb-2"></i>
+                            <span class="text-[10px] sm:text-xs font-bold text-center px-2">${t.lbl_main_server}</span>
                         </div>
                         <!-- Nodes -->
-                        <div class="absolute top-[10%] left-[15%] w-20 h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-laptop text-2xl text-purple-600"></i></div>
-                        <div class="absolute bottom-[10%] left-[20%] w-20 h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-desktop text-2xl text-purple-600"></i></div>
-                        <div class="absolute top-[15%] right-[15%] w-20 h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-server text-2xl text-purple-600"></i></div>
-                        <div class="absolute bottom-[15%] right-[20%] w-20 h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-laptop text-2xl text-purple-600"></i></div>
+                        <div class="absolute top-[10%] left-[10%] w-16 h-16 sm:w-20 sm:h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-laptop text-xl sm:text-2xl text-purple-600"></i></div>
+                        <div class="absolute bottom-[10%] left-[15%] w-16 h-16 sm:w-20 sm:h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-desktop text-xl sm:text-2xl text-purple-600"></i></div>
+                        <div class="absolute top-[15%] right-[10%] w-16 h-16 sm:w-20 sm:h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-server text-xl sm:text-2xl text-purple-600"></i></div>
+                        <div class="absolute bottom-[15%] right-[15%] w-16 h-16 sm:w-20 sm:h-20 bg-white border-2 border-purple-300 rounded-xl flex flex-col items-center justify-center dist-node shadow-md transition-colors"><i class="fa-solid fa-laptop text-xl sm:text-2xl text-purple-600"></i></div>
                     </div>
                 `;
             } else if (type === 'virtualisation') {
@@ -690,24 +833,24 @@
                 `;
                 stage.innerHTML = `
                     <div class="demo-container w-full h-full">
-                        <div class="w-full max-w-xl border-4 border-slate-700 rounded-2xl p-6 bg-slate-100 shadow-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                            <div class="absolute -top-4 left-6 bg-slate-700 text-white text-sm px-4 py-1 rounded-full font-bold shadow-md">${t.lbl_hardware}</div>
-                            <div class="w-full bg-slate-300 h-8 rounded-lg mb-6 flex items-center justify-center text-sm font-bold text-slate-700 shadow-inner border border-slate-400">${t.lbl_hypervisor}</div>
-                            <div class="flex gap-4 justify-between" id="vmContainer">
-                                <div class="flex-1 bg-white border-2 border-cyan-400 rounded-xl p-4 flex flex-col items-center shadow-sm">
-                                    <i class="fa-brands fa-windows text-cyan-600 text-3xl mb-3"></i>
-                                    <span class="text-sm font-bold text-slate-700">Windows VM</span>
-                                    <div class="w-full h-3 bg-slate-100 mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-cyan-500 w-0 vm-progress"></div></div>
+                        <div class="w-full max-w-xl border-4 border-slate-700 rounded-2xl p-4 sm:p-6 bg-slate-100 shadow-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div class="absolute -top-4 left-6 bg-slate-700 text-white text-xs sm:text-sm px-4 py-1 rounded-full font-bold shadow-md">${t.lbl_hardware}</div>
+                            <div class="w-full bg-slate-300 h-8 rounded-lg mb-6 flex items-center justify-center text-xs sm:text-sm font-bold text-slate-700 shadow-inner border border-slate-400">${t.lbl_hypervisor}</div>
+                            <div class="flex gap-2 sm:gap-4 justify-between" id="vmContainer">
+                                <div class="flex-1 bg-white border-2 border-cyan-400 rounded-xl p-3 sm:p-4 flex flex-col items-center shadow-sm">
+                                    <i class="fa-brands fa-windows text-cyan-600 text-2xl sm:text-3xl mb-2 sm:mb-3"></i>
+                                    <span class="text-[10px] sm:text-sm font-bold text-slate-700 text-center">Win VM</span>
+                                    <div class="w-full h-2 sm:h-3 bg-slate-100 mt-3 sm:mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-cyan-500 w-0 vm-progress"></div></div>
                                 </div>
-                                <div class="flex-1 bg-white border-2 border-orange-400 rounded-xl p-4 flex flex-col items-center shadow-sm">
-                                    <i class="fa-brands fa-ubuntu text-orange-600 text-3xl mb-3"></i>
-                                    <span class="text-sm font-bold text-slate-700">Linux VM</span>
-                                    <div class="w-full h-3 bg-slate-100 mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-orange-500 w-0 vm-progress"></div></div>
+                                <div class="flex-1 bg-white border-2 border-orange-400 rounded-xl p-3 sm:p-4 flex flex-col items-center shadow-sm">
+                                    <i class="fa-brands fa-ubuntu text-orange-600 text-2xl sm:text-3xl mb-2 sm:mb-3"></i>
+                                    <span class="text-[10px] sm:text-sm font-bold text-slate-700 text-center">Linux VM</span>
+                                    <div class="w-full h-2 sm:h-3 bg-slate-100 mt-3 sm:mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-orange-500 w-0 vm-progress"></div></div>
                                 </div>
-                                <div class="flex-1 bg-white border-2 border-slate-400 rounded-xl p-4 flex flex-col items-center shadow-sm">
-                                    <i class="fa-brands fa-apple text-slate-600 text-3xl mb-3"></i>
-                                    <span class="text-sm font-bold text-slate-700">macOS VM</span>
-                                    <div class="w-full h-3 bg-slate-100 mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-slate-500 w-0 vm-progress"></div></div>
+                                <div class="flex-1 bg-white border-2 border-slate-400 rounded-xl p-3 sm:p-4 flex flex-col items-center shadow-sm">
+                                    <i class="fa-brands fa-apple text-slate-600 text-2xl sm:text-3xl mb-2 sm:mb-3"></i>
+                                    <span class="text-[10px] sm:text-sm font-bold text-slate-700 text-center">macOS VM</span>
+                                    <div class="w-full h-2 sm:h-3 bg-slate-100 mt-3 sm:mt-4 rounded-full overflow-hidden shadow-inner"><div class="h-full bg-slate-500 w-0 vm-progress"></div></div>
                                 </div>
                             </div>
                         </div>
@@ -832,7 +975,7 @@
             for(let i=0; i<4; i++) {
                 const m = document.createElement('div');
                 m.className = 'absolute w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center text-white text-sm font-bold z-20 shadow-md';
-                m.innerText = `Part ${i+1}`;
+                m.innerText = `P${i+1}`;
                 m.style.left = (startPos.x - 24) + 'px';
                 m.style.top = (startPos.y - 24) + 'px';
                 m.style.transition = 'all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)';
@@ -956,6 +1099,10 @@
             document.getElementById('learningSection').classList.add('hidden');
             document.getElementById('quizSection').classList.remove('hidden');
             document.getElementById('quizNavControls').classList.remove('hidden');
+            
+            // Scroll to top
+            document.getElementById('contentArea').scrollTop = 0;
+
             renderNav(); 
             renderQuizQuestion();
         }
@@ -1016,20 +1163,20 @@
             const selectedIdx = quizState.answers[quizState.currentQ];
 
             let html = `<div class="fade-in">
-                <h3 class="text-xl font-bold text-slate-800 mb-6 leading-relaxed">${quizState.currentQ + 1}. ${qData.q}</h3>
-                <div class="space-y-3 mb-6">`;
+                <h3 class="text-2xl font-bold text-slate-800 mb-8 leading-relaxed">${quizState.currentQ + 1}. ${qData.q}</h3>
+                <div class="space-y-4 mb-8">`;
             
             qData.options.forEach((opt, idx) => {
-                let btnClass = "w-full text-left p-4 border-2 rounded-xl transition-all font-semibold text-slate-700 ";
+                let btnClass = "w-full text-left p-5 border-2 rounded-xl transition-all font-semibold text-lg text-slate-700 ";
                 
                 if (!hasAnswered) {
-                    btnClass += "border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 cursor-pointer";
+                    btnClass += "border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-sm cursor-pointer";
                 } else {
                     btnClass += "cursor-default ";
                     if (idx === qData.answer) {
-                        btnClass += "border-emerald-500 bg-emerald-50 text-emerald-800"; 
+                        btnClass += "border-emerald-500 bg-emerald-50 text-emerald-800 shadow-sm"; 
                     } else if (idx === selectedIdx && selectedIdx !== qData.answer) {
-                        btnClass += "border-red-500 bg-red-50 text-red-800"; 
+                        btnClass += "border-rose-500 bg-rose-50 text-rose-800 shadow-sm"; 
                     } else {
                         btnClass += "border-slate-100 opacity-50"; 
                     }
@@ -1039,8 +1186,8 @@
                     <button ${hasAnswered ? 'disabled' : `onclick="answerQuestion(${idx})"`} class="${btnClass}">
                         <div class="flex items-center justify-between">
                             <span>${opt}</span>
-                            ${hasAnswered && idx === qData.answer ? '<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i>' : ''}
-                            ${hasAnswered && idx === selectedIdx && selectedIdx !== qData.answer ? '<i class="fa-solid fa-circle-xmark text-red-500 text-xl"></i>' : ''}
+                            ${hasAnswered && idx === qData.answer ? '<i class="fa-solid fa-circle-check text-emerald-500 text-2xl"></i>' : ''}
+                            ${hasAnswered && idx === selectedIdx && selectedIdx !== qData.answer ? '<i class="fa-solid fa-circle-xmark text-rose-500 text-2xl"></i>' : ''}
                         </div>
                     </button>
                 `;
@@ -1051,12 +1198,12 @@
             if (hasAnswered) {
                 const isCorrect = selectedIdx === qData.answer;
                 html += `
-                    <div class="p-5 rounded-xl border ${isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'} fade-in shadow-sm">
-                        <h4 class="font-bold mb-2 flex items-center gap-2 text-lg ${isCorrect ? 'text-emerald-800' : 'text-red-800'}">
+                    <div class="p-6 rounded-xl border ${isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'} fade-in shadow-sm">
+                        <h4 class="font-bold mb-3 flex items-center gap-2 text-xl ${isCorrect ? 'text-emerald-800' : 'text-rose-800'}">
                             <i class="fa-solid ${isCorrect ? 'fa-check' : 'fa-xmark'}"></i>
                             ${isCorrect ? t.quiz_correct : t.quiz_incorrect}
                         </h4>
-                        <p class="text-base ${isCorrect ? 'text-emerald-900' : 'text-red-900'} leading-relaxed">${qData.explanation}</p>
+                        <p class="text-lg ${isCorrect ? 'text-emerald-900' : 'text-rose-900'} leading-relaxed">${qData.explanation}</p>
                     </div>
                 `;
             }
@@ -1067,8 +1214,8 @@
             // Update Nav Buttons State
             document.getElementById('btnQuizPrev').disabled = quizState.currentQ === 0;
             document.getElementById('btnQuizPrev').className = quizState.currentQ === 0 
-                ? "px-5 py-2.5 bg-slate-50 text-slate-400 rounded-lg font-semibold cursor-not-allowed flex items-center gap-2"
-                : "px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition-colors flex items-center gap-2";
+                ? "px-6 py-3 bg-slate-50 text-slate-400 rounded-xl font-bold cursor-not-allowed flex items-center gap-2"
+                : "px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors flex items-center gap-2";
             
             const btnNext = document.getElementById('btnQuizNext');
             if (quizState.currentQ === qList.length - 1) {
@@ -1078,8 +1225,8 @@
             }
             
             btnNext.className = hasAnswered 
-                ? "px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2 shadow-md"
-                : "px-5 py-2.5 bg-indigo-300 text-white rounded-lg font-semibold cursor-not-allowed flex items-center gap-2";
+                ? "px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors flex items-center gap-2 shadow-md"
+                : "px-6 py-3 bg-indigo-300 text-white rounded-xl font-bold cursor-not-allowed flex items-center gap-2";
             btnNext.disabled = !hasAnswered;
         }
 
